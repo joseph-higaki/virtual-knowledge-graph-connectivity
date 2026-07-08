@@ -1,0 +1,37 @@
+# --- Secrets / env ---
+# Real env lives in secrets/.env (dev creds, oracle/JDBC coords); only the template is tracked.
+secrets/.env
+secrets/*.local
+.env
+*.env
+!secrets/.env.example
+!*.env.example
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# --- Fetched / generated data ---
+# hetionet TSVs and derived RDF land here; hetionet.ttl is ~469 MB and must never enter history.
+data/hetionet/
+
+# --- Local docker volume mounts (if bind-mounted rather than named volumes) ---
+.volumes/
+minio-data/
+pgdata/
+trino-data/
+
+# --- OS / editor cruft ---
+.DS_Store
+Thumbs.db
+*.swp
