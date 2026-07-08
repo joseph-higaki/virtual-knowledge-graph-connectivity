@@ -22,8 +22,12 @@ env/
 htmlcov/
 
 # --- Fetched / generated data ---
-# hetionet TSVs and derived RDF land here; hetionet.ttl is ~469 MB and must never enter history.
-data/hetionet/
+# hetionet TSVs and derived RDF land here; the ~469 MB hetionet.ttl must never enter history.
+# Exception: the 45 KB smoke ttl is a tracked reference oracle. Glob-then-negate is required
+# because a plain `data/hetionet/` dir exclude blocks re-including any file beneath it.
+data/hetionet/**
+!data/hetionet/rdf/
+!data/hetionet/rdf/hetionet-smoke.ttl
 
 # --- Local docker volume mounts (if bind-mounted rather than named volumes) ---
 .volumes/

@@ -1,0 +1,1138 @@
+@prefix db: <https://identifiers.org/drugbank/> .
+@prefix do: <http://purl.obolibrary.org/obo/DOID_> .
+@prefix ncbigene: <https://identifiers.org/ncbigene/> .
+@prefix uberon: <http://purl.obolibrary.org/obo/UBERON_> .
+@prefix go: <http://purl.obolibrary.org/obo/GO_> .
+@prefix umls: <https://identifiers.org/umls/> .
+@prefix mesh: <https://identifiers.org/mesh/> .
+@prefix ndfrt: <https://identifiers.org/ndfrt/> .
+@prefix pathway: <https://het.io/pathway/> .
+@prefix hetio: <https://het.io/schema/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# --- Nodes (type + label + curated data attributes) ---
+go:0010243 a hetio:BiologicalProcess ;
+    rdfs:label "response to organonitrogen compound" .
+ncbigene:6233 a hetio:Gene ;
+    rdfs:label "RPS27A" ;
+    hetio:chromosome "2" ;
+    hetio:description "ribosomal protein S27a" .
+ncbigene:999 a hetio:Gene ;
+    rdfs:label "CDH1" ;
+    hetio:chromosome "16" ;
+    hetio:description "cadherin 1, type 1, E-cadherin (epithelial)" .
+ncbigene:55179 a hetio:Gene ;
+    rdfs:label "FAIM" ;
+    hetio:chromosome "3" ;
+    hetio:description "Fas apoptotic inhibitory molecule" .
+ncbigene:5987 a hetio:Gene ;
+    rdfs:label "TRIM27" ;
+    hetio:chromosome "6" ;
+    hetio:description "tripartite motif containing 27" .
+ncbigene:5684 a hetio:Gene ;
+    rdfs:label "PSMA3" ;
+    hetio:chromosome "14" ;
+    hetio:description "proteasome (prosome, macropain) subunit, alpha type, 3" .
+ncbigene:79192 a hetio:Gene ;
+    rdfs:label "IRX1" ;
+    hetio:chromosome "5" ;
+    hetio:description "iroquois homeobox 1" .
+ncbigene:8914 a hetio:Gene ;
+    rdfs:label "TIMELESS" ;
+    hetio:chromosome "12" ;
+    hetio:description "timeless circadian clock" .
+uberon:0002450 a hetio:Anatomy ;
+    rdfs:label "decidua" .
+ncbigene:504189 a hetio:Gene ;
+    rdfs:label "OR8U8" ;
+    hetio:chromosome "11" ;
+    hetio:description "olfactory receptor, family 8, subfamily U, member 8" .
+pathway:WP560_r83868 a hetio:Pathway ;
+    rdfs:label "TGF-beta Receptor Signaling" .
+go:0043207 a hetio:BiologicalProcess ;
+    rdfs:label "response to external biotic stimulus" .
+db:DB00448 a hetio:Compound ;
+    rdfs:label "Lansoprazole" ;
+    hetio:inchikey "InChIKey=MJIHNNLFOKEZEW-UHFFFAOYSA-N" .
+ncbigene:5962 a hetio:Gene ;
+    rdfs:label "RDX" ;
+    hetio:chromosome "11" ;
+    hetio:description "radixin" .
+uberon:0000474 a hetio:Anatomy ;
+    rdfs:label "female reproductive system" .
+ncbigene:388630 a hetio:Gene ;
+    rdfs:label "TRABD2B" ;
+    hetio:chromosome "1" ;
+    hetio:description "TraB domain containing 2B" .
+ncbigene:2195 a hetio:Gene ;
+    rdfs:label "FAT1" ;
+    hetio:chromosome "4" ;
+    hetio:description "FAT atypical cadherin 1" .
+go:0016887 a hetio:MolecularFunction ;
+    rdfs:label "ATPase activity" .
+ncbigene:4535 a hetio:Gene ;
+    rdfs:label "ND1" ;
+    hetio:chromosome "MT" ;
+    hetio:description "NADH dehydrogenase, subunit 1 (complex I)" .
+go:0008015 a hetio:BiologicalProcess ;
+    rdfs:label "blood circulation" .
+ncbigene:3725 a hetio:Gene ;
+    rdfs:label "JUN" ;
+    hetio:chromosome "1" ;
+    hetio:description "jun proto-oncogene" .
+go:0050768 a hetio:BiologicalProcess ;
+    rdfs:label "negative regulation of neurogenesis" .
+ncbigene:10868 a hetio:Gene ;
+    rdfs:label "USP20" ;
+    hetio:chromosome "9" ;
+    hetio:description "ubiquitin specific peptidase 20" .
+ncbigene:7556 a hetio:Gene ;
+    rdfs:label "ZNF10" ;
+    hetio:chromosome "12" ;
+    hetio:description "zinc finger protein 10" .
+uberon:0002185 a hetio:Anatomy ;
+    rdfs:label "bronchus" .
+ncbigene:2891 a hetio:Gene ;
+    rdfs:label "GRIA2" ;
+    hetio:chromosome "4" ;
+    hetio:description "glutamate receptor, ionotropic, AMPA 2" .
+pathway:PC7_7457 a hetio:Pathway ;
+    rdfs:label "Signaling by GPCR" .
+ncbigene:1812 a hetio:Gene ;
+    rdfs:label "DRD1" ;
+    hetio:chromosome "5" ;
+    hetio:description "dopamine receptor D1" .
+ncbigene:6119 a hetio:Gene ;
+    rdfs:label "RPA3" ;
+    hetio:chromosome "7" ;
+    hetio:description "replication protein A3, 14kDa" .
+uberon:0000992 a hetio:Anatomy ;
+    rdfs:label "female gonad" .
+ncbigene:701 a hetio:Gene ;
+    rdfs:label "BUB1B" ;
+    hetio:chromosome "15" ;
+    hetio:description "BUB1 mitotic checkpoint serine/threonine kinase B" .
+ncbigene:8607 a hetio:Gene ;
+    rdfs:label "RUVBL1" ;
+    hetio:chromosome "3" ;
+    hetio:description "RuvB-like AAA ATPase 1" .
+ncbigene:80303 a hetio:Gene ;
+    rdfs:label "EFHD1" ;
+    hetio:chromosome "2" ;
+    hetio:description "EF-hand domain family, member D1" .
+ncbigene:158399 a hetio:Gene ;
+    rdfs:label "ZNF483" ;
+    hetio:chromosome "9" ;
+    hetio:description "zinc finger protein 483" .
+ncbigene:2733 a hetio:Gene ;
+    rdfs:label "GLE1" ;
+    hetio:chromosome "9" ;
+    hetio:description "GLE1 RNA export mediator" .
+ncbigene:79738 a hetio:Gene ;
+    rdfs:label "BBS10" ;
+    hetio:chromosome "12" ;
+    hetio:description "Bardet-Biedl syndrome 10" .
+db:DB06817 a hetio:Compound ;
+    rdfs:label "Raltegravir" ;
+    hetio:inchikey "InChIKey=CZFFBEXEKNGXKS-UHFFFAOYSA-N" .
+go:0016274 a hetio:MolecularFunction ;
+    rdfs:label "protein-arginine N-methyltransferase activity" .
+ncbigene:9021 a hetio:Gene ;
+    rdfs:label "SOCS3" ;
+    hetio:chromosome "17" ;
+    hetio:description "suppressor of cytokine signaling 3" .
+ncbigene:841 a hetio:Gene ;
+    rdfs:label "CASP8" ;
+    hetio:chromosome "2" ;
+    hetio:description "caspase 8, apoptosis-related cysteine peptidase" .
+ncbigene:6924 a hetio:Gene ;
+    rdfs:label "TCEB3" ;
+    hetio:chromosome "1" ;
+    hetio:description "transcription elongation factor B (SIII), polypeptide 3 (110kDa, elongin A)" .
+ncbigene:2011 a hetio:Gene ;
+    rdfs:label "MARK2" ;
+    hetio:chromosome "11" ;
+    hetio:description "MAP/microtubule affinity-regulating kinase 2" .
+go:0016925 a hetio:BiologicalProcess ;
+    rdfs:label "protein sumoylation" .
+uberon:0002082 a hetio:Anatomy ;
+    rdfs:label "cardiac ventricle" .
+ncbigene:9412 a hetio:Gene ;
+    rdfs:label "MED21" ;
+    hetio:chromosome "12" ;
+    hetio:description "mediator complex subunit 21" .
+ncbigene:2687 a hetio:Gene ;
+    rdfs:label "GGT5" ;
+    hetio:chromosome "22" ;
+    hetio:description "gamma-glutamyltransferase 5" .
+ncbigene:2099 a hetio:Gene ;
+    rdfs:label "ESR1" ;
+    hetio:chromosome "6" ;
+    hetio:description "estrogen receptor 1" .
+uberon:0002367 a hetio:Anatomy ;
+    rdfs:label "prostate gland" .
+ncbigene:3439 a hetio:Gene ;
+    rdfs:label "IFNA1" ;
+    hetio:chromosome "9" ;
+    hetio:description "interferon, alpha 1" .
+db:DB00514 a hetio:Compound ;
+    rdfs:label "Dextromethorphan" ;
+    hetio:inchikey "InChIKey=MKXZASYAUGDDCJ-NJAFHUGGSA-N" .
+ncbigene:8772 a hetio:Gene ;
+    rdfs:label "FADD" ;
+    hetio:chromosome "11" ;
+    hetio:description "Fas (TNFRSF6)-associated via death domain" .
+uberon:0000033 a hetio:Anatomy ;
+    rdfs:label "head" .
+ncbigene:10098 a hetio:Gene ;
+    rdfs:label "TSPAN5" ;
+    hetio:chromosome "4" ;
+    hetio:description "tetraspanin 5" .
+uberon:0002349 a hetio:Anatomy ;
+    rdfs:label "myocardium" .
+ncbigene:583 a hetio:Gene ;
+    rdfs:label "BBS2" ;
+    hetio:chromosome "16" ;
+    hetio:description "Bardet-Biedl syndrome 2" .
+ncbigene:2907 a hetio:Gene ;
+    rdfs:label "GRINA" ;
+    hetio:chromosome "8" ;
+    hetio:description "glutamate receptor, ionotropic, N-methyl D-aspartate-associated protein 1 (glutamate binding)" .
+ncbigene:51523 a hetio:Gene ;
+    rdfs:label "CXXC5" ;
+    hetio:chromosome "5" ;
+    hetio:description "CXXC finger protein 5" .
+go:0010506 a hetio:BiologicalProcess ;
+    rdfs:label "regulation of autophagy" .
+uberon:0001295 a hetio:Anatomy ;
+    rdfs:label "endometrium" .
+ncbigene:8416 a hetio:Gene ;
+    rdfs:label "ANXA9" ;
+    hetio:chromosome "1" ;
+    hetio:description "annexin A9" .
+ncbigene:3198 a hetio:Gene ;
+    rdfs:label "HOXA1" ;
+    hetio:chromosome "7" ;
+    hetio:description "homeobox A1" .
+uberon:0002107 a hetio:Anatomy ;
+    rdfs:label "liver" .
+ncbigene:728577 a hetio:Gene ;
+    rdfs:label "CNTNAP3B" ;
+    hetio:chromosome "9" ;
+    hetio:description "contactin associated protein-like 3B" .
+ncbigene:8204 a hetio:Gene ;
+    rdfs:label "NRIP1" ;
+    hetio:chromosome "21" ;
+    hetio:description "nuclear receptor interacting protein 1" .
+ncbigene:3670 a hetio:Gene ;
+    rdfs:label "ISL1" ;
+    hetio:chromosome "5" ;
+    hetio:description "ISL LIM homeobox 1" .
+ncbigene:1136 a hetio:Gene ;
+    rdfs:label "CHRNA3" ;
+    hetio:chromosome "15" ;
+    hetio:description "cholinergic receptor, nicotinic, alpha 3 (neuronal)" .
+uberon:0000995 a hetio:Anatomy ;
+    rdfs:label "uterus" .
+ncbigene:4824 a hetio:Gene ;
+    rdfs:label "NKX3-1" ;
+    hetio:chromosome "8" ;
+    hetio:description "NK3 homeobox 1" .
+ncbigene:23070 a hetio:Gene ;
+    rdfs:label "CMTR1" ;
+    hetio:chromosome "6" ;
+    hetio:description "cap methyltransferase 1" .
+ncbigene:132320 a hetio:Gene ;
+    rdfs:label "SCLT1" ;
+    hetio:chromosome "4" ;
+    hetio:description "sodium channel and clathrin linker 1" .
+umls:C0001824 a hetio:SideEffect ;
+    rdfs:label "Agranulocytosis" .
+go:0005913 a hetio:CellularComponent ;
+    rdfs:label "cell-cell adherens junction" .
+ncbigene:8407 a hetio:Gene ;
+    rdfs:label "TAGLN2" ;
+    hetio:chromosome "1" ;
+    hetio:description "transgelin 2" .
+go:0005085 a hetio:MolecularFunction ;
+    rdfs:label "guanyl-nucleotide exchange factor activity" .
+ncbigene:25793 a hetio:Gene ;
+    rdfs:label "FBXO7" ;
+    hetio:chromosome "22" ;
+    hetio:description "F-box protein 7" .
+ncbigene:9370 a hetio:Gene ;
+    rdfs:label "ADIPOQ" ;
+    hetio:chromosome "3" ;
+    hetio:description "adiponectin, C1Q and collagen domain containing" .
+do:263 a hetio:Disease ;
+    rdfs:label "kidney cancer" .
+ncbigene:3039 a hetio:Gene ;
+    rdfs:label "HBA1" ;
+    hetio:chromosome "16" ;
+    hetio:description "hemoglobin, alpha 1" .
+ncbigene:56647 a hetio:Gene ;
+    rdfs:label "BCCIP" ;
+    hetio:chromosome "10" ;
+    hetio:description "BRCA2 and CDKN1A interacting protein" .
+ncbigene:4948 a hetio:Gene ;
+    rdfs:label "OCA2" ;
+    hetio:chromosome "15" ;
+    hetio:description "oculocutaneous albinism II" .
+go:0006898 a hetio:BiologicalProcess ;
+    rdfs:label "receptor-mediated endocytosis" .
+ncbigene:51676 a hetio:Gene ;
+    rdfs:label "ASB2" ;
+    hetio:chromosome "14" ;
+    hetio:description "ankyrin repeat and SOCS box containing 2" .
+ncbigene:5927 a hetio:Gene ;
+    rdfs:label "KDM5A" ;
+    hetio:chromosome "12" ;
+    hetio:description "lysine (K)-specific demethylase 5A" .
+ncbigene:6206 a hetio:Gene ;
+    rdfs:label "RPS12" ;
+    hetio:chromosome "6" ;
+    hetio:description "ribosomal protein S12" .
+uberon:0004535 a hetio:Anatomy ;
+    rdfs:label "cardiovascular system" .
+go:0042770 a hetio:BiologicalProcess ;
+    rdfs:label "signal transduction in response to DNA damage" .
+ncbigene:133688 a hetio:Gene ;
+    rdfs:label "UGT3A1" ;
+    hetio:chromosome "5" ;
+    hetio:description "UDP glycosyltransferase 3 family, polypeptide A1" .
+ncbigene:23176 a hetio:Gene ;
+    rdfs:label "SEPT8" ;
+    hetio:chromosome "5" ;
+    hetio:description "septin 8" .
+ncbigene:51290 a hetio:Gene ;
+    rdfs:label "ERGIC2" ;
+    hetio:chromosome "12" ;
+    hetio:description "ERGIC and golgi 2" .
+go:0006354 a hetio:BiologicalProcess ;
+    rdfs:label "DNA-templated transcription, elongation" .
+uberon:0000996 a hetio:Anatomy ;
+    rdfs:label "vagina" .
+ncbigene:6596 a hetio:Gene ;
+    rdfs:label "HLTF" ;
+    hetio:chromosome "3" ;
+    hetio:description "helicase-like transcription factor" .
+ncbigene:10908 a hetio:Gene ;
+    rdfs:label "PNPLA6" ;
+    hetio:chromosome "19" ;
+    hetio:description "patatin-like phospholipase domain containing 6" .
+ncbigene:19 a hetio:Gene ;
+    rdfs:label "ABCA1" ;
+    hetio:chromosome "9" ;
+    hetio:description "ATP-binding cassette, sub-family A (ABC1), member 1" .
+uberon:0002030 a hetio:Anatomy ;
+    rdfs:label "nipple" .
+ncbigene:64121 a hetio:Gene ;
+    rdfs:label "RRAGC" ;
+    hetio:chromosome "1" ;
+    hetio:description "Ras-related GTP binding C" .
+go:0042803 a hetio:MolecularFunction ;
+    rdfs:label "protein homodimerization activity" .
+uberon:0001017 a hetio:Anatomy ;
+    rdfs:label "central nervous system" .
+ncbigene:79724 a hetio:Gene ;
+    rdfs:label "ZNF768" ;
+    hetio:chromosome "16" ;
+    hetio:description "zinc finger protein 768" .
+ncbigene:7101 a hetio:Gene ;
+    rdfs:label "NR2E1" ;
+    hetio:chromosome "6" ;
+    hetio:description "nuclear receptor subfamily 2, group E, member 1" .
+ncbigene:10556 a hetio:Gene ;
+    rdfs:label "RPP30" ;
+    hetio:chromosome "10" ;
+    hetio:description "ribonuclease P/MRP 30kDa subunit" .
+ncbigene:5604 a hetio:Gene ;
+    rdfs:label "MAP2K1" ;
+    hetio:chromosome "15" ;
+    hetio:description "mitogen-activated protein kinase kinase 1" .
+go:0048609 a hetio:BiologicalProcess ;
+    rdfs:label "multicellular organismal reproductive process" .
+db:DB01179 a hetio:Compound ;
+    rdfs:label "Podofilox" ;
+    hetio:inchikey "InChIKey=YJGVMLPVUAXIQN-KJYZGMDISA-N" .
+ncbigene:3930 a hetio:Gene ;
+    rdfs:label "LBR" ;
+    hetio:chromosome "1" ;
+    hetio:description "lamin B receptor" .
+ncbigene:1106 a hetio:Gene ;
+    rdfs:label "CHD2" ;
+    hetio:chromosome "15" ;
+    hetio:description "chromodomain helicase DNA binding protein 2" .
+go:0048568 a hetio:BiologicalProcess ;
+    rdfs:label "embryonic organ development" .
+go:0099537 a hetio:BiologicalProcess ;
+    rdfs:label "trans-synaptic signaling" .
+ncbigene:7155 a hetio:Gene ;
+    rdfs:label "TOP2B" ;
+    hetio:chromosome "3" ;
+    hetio:description "topoisomerase (DNA) II beta 180kDa" .
+ncbigene:7471 a hetio:Gene ;
+    rdfs:label "WNT1" ;
+    hetio:chromosome "12" ;
+    hetio:description "wingless-type MMTV integration site family, member 1" .
+ncbigene:1636 a hetio:Gene ;
+    rdfs:label "ACE" ;
+    hetio:chromosome "17" ;
+    hetio:description "angiotensin I converting enzyme" .
+uberon:0000955 a hetio:Anatomy ;
+    rdfs:label "brain" .
+ncbigene:10589 a hetio:Gene ;
+    rdfs:label "DRAP1" ;
+    hetio:chromosome "11" ;
+    hetio:description "DR1-associated protein 1 (negative cofactor 2 alpha)" .
+db:DB00734 a hetio:Compound ;
+    rdfs:label "Risperidone" ;
+    hetio:inchikey "InChIKey=RAPZEAPATHNIPO-UHFFFAOYSA-N" .
+ncbigene:10419 a hetio:Gene ;
+    rdfs:label "PRMT5" ;
+    hetio:chromosome "14" ;
+    hetio:description "protein arginine methyltransferase 5" .
+db:DB00686 a hetio:Compound ;
+    rdfs:label "Pentosan Polysulfate" ;
+    hetio:inchikey "InChIKey=FCCNSUIJIOOXEZ-SJYYZXOBSA-N" .
+ncbigene:6130 a hetio:Gene ;
+    rdfs:label "RPL7A" ;
+    hetio:chromosome "9" ;
+    hetio:description "ribosomal protein L7a" .
+go:0055088 a hetio:BiologicalProcess ;
+    rdfs:label "lipid homeostasis" .
+umls:C0235309 a hetio:SideEffect ;
+    rdfs:label "Upset stomach" .
+pathway:PC7_2926 a hetio:Pathway ;
+    rdfs:label "DAP12 signaling" .
+go:0010720 a hetio:BiologicalProcess ;
+    rdfs:label "positive regulation of cell development" .
+ncbigene:286257 a hetio:Gene ;
+    rdfs:label "C9orf142" ;
+    hetio:chromosome "9" ;
+    hetio:description "chromosome 9 open reading frame 142" .
+pathway:PC7_6994 a hetio:Pathway ;
+    rdfs:label "Role of LAT2/NTAL/LAB on calcium mobilization" .
+ncbigene:51172 a hetio:Gene ;
+    rdfs:label "NAGPA" ;
+    hetio:chromosome "16" ;
+    hetio:description "N-acetylglucosamine-1-phosphodiester alpha-N-acetylglucosaminidase" .
+uberon:0000948 a hetio:Anatomy ;
+    rdfs:label "heart" .
+go:0071357 a hetio:BiologicalProcess ;
+    rdfs:label "cellular response to type I interferon" .
+uberon:0001893 a hetio:Anatomy ;
+    rdfs:label "telencephalon" .
+ncbigene:55272 a hetio:Gene ;
+    rdfs:label "IMP3" ;
+    hetio:chromosome "15" ;
+    hetio:description "IMP3, U3 small nucleolar ribonucleoprotein" .
+go:0031056 a hetio:BiologicalProcess ;
+    rdfs:label "regulation of histone modification" .
+ncbigene:164684 a hetio:Gene ;
+    rdfs:label "WBP2NL" ;
+    hetio:chromosome "22" ;
+    hetio:description "WBP2 N-terminal like" .
+go:0070201 a hetio:BiologicalProcess ;
+    rdfs:label "regulation of establishment of protein localization" .
+go:0001786 a hetio:MolecularFunction ;
+    rdfs:label "phosphatidylserine binding" .
+ncbigene:8741 a hetio:Gene ;
+    rdfs:label "TNFSF13" ;
+    hetio:chromosome "17" ;
+    hetio:description "tumor necrosis factor (ligand) superfamily, member 13" .
+ncbigene:10514 a hetio:Gene ;
+    rdfs:label "MYBBP1A" ;
+    hetio:chromosome "17" ;
+    hetio:description "MYB binding protein (P160) 1a" .
+ncbigene:11065 a hetio:Gene ;
+    rdfs:label "UBE2C" ;
+    hetio:chromosome "20" ;
+    hetio:description "ubiquitin-conjugating enzyme E2C" .
+ncbigene:80243 a hetio:Gene ;
+    rdfs:label "PREX2" ;
+    hetio:chromosome "8" ;
+    hetio:description "phosphatidylinositol-3,4,5-trisphosphate-dependent Rac exchange factor 2" .
+ncbigene:55093 a hetio:Gene ;
+    rdfs:label "WDYHV1" ;
+    hetio:chromosome "8" ;
+    hetio:description "WDYHV motif containing 1" .
+ncbigene:4040 a hetio:Gene ;
+    rdfs:label "LRP6" ;
+    hetio:chromosome "12" ;
+    hetio:description "low density lipoprotein receptor-related protein 6" .
+ncbigene:9816 a hetio:Gene ;
+    rdfs:label "URB2" ;
+    hetio:chromosome "1" ;
+    hetio:description "URB2 ribosome biogenesis 2 homolog (S. cerevisiae)" .
+go:0006417 a hetio:BiologicalProcess ;
+    rdfs:label "regulation of translation" .
+ncbigene:9489 a hetio:Gene ;
+    rdfs:label "PGS1" ;
+    hetio:chromosome "17" ;
+    hetio:description "phosphatidylglycerophosphate synthase 1" .
+ncbigene:3176 a hetio:Gene ;
+    rdfs:label "HNMT" ;
+    hetio:chromosome "2" ;
+    hetio:description "histamine N-methyltransferase" .
+pathway:PC7_5330 a hetio:Pathway ;
+    rdfs:label "Metabolism of proteins" .
+ncbigene:55844 a hetio:Gene ;
+    rdfs:label "PPP2R2D" ;
+    hetio:chromosome "10" ;
+    hetio:description "protein phosphatase 2, regulatory subunit B, delta" .
+ncbigene:2246 a hetio:Gene ;
+    rdfs:label "FGF1" ;
+    hetio:chromosome "5" ;
+    hetio:description "fibroblast growth factor 1 (acidic)" .
+uberon:0002081 a hetio:Anatomy ;
+    rdfs:label "cardiac atrium" .
+umls:C0424024 a hetio:SideEffect ;
+    rdfs:label "Delusional perception" .
+ncbigene:51761 a hetio:Gene ;
+    rdfs:label "ATP8A2" ;
+    hetio:chromosome "13" ;
+    hetio:description "ATPase, aminophospholipid transporter, class I, type 8A, member 2" .
+ncbigene:5743 a hetio:Gene ;
+    rdfs:label "PTGS2" ;
+    hetio:chromosome "1" ;
+    hetio:description "prostaglandin-endoperoxide synthase 2 (prostaglandin G/H synthase and cyclooxygenase)" .
+go:0015179 a hetio:MolecularFunction ;
+    rdfs:label "L-amino acid transmembrane transporter activity" .
+ncbigene:5909 a hetio:Gene ;
+    rdfs:label "RAP1GAP" ;
+    hetio:chromosome "1" ;
+    hetio:description "RAP1 GTPase activating protein" .
+ncbigene:80347 a hetio:Gene ;
+    rdfs:label "COASY" ;
+    hetio:chromosome "17" ;
+    hetio:description "CoA synthase" .
+ncbigene:54964 a hetio:Gene ;
+    rdfs:label "C1orf56" ;
+    hetio:chromosome "1" ;
+    hetio:description "chromosome 1 open reading frame 56" .
+uberon:0002240 a hetio:Anatomy ;
+    rdfs:label "spinal cord" .
+umls:C0014724 a hetio:SideEffect ;
+    rdfs:label "Eructation" .
+uberon:0000178 a hetio:Anatomy ;
+    rdfs:label "blood" .
+pathway:PC7_6941 a hetio:Pathway ;
+    rdfs:label "Resolution of Sister Chromatid Cohesion" .
+pathway:WP477_r67139 a hetio:Pathway ;
+    rdfs:label "Cytoplasmic Ribosomal Proteins" .
+ncbigene:4087 a hetio:Gene ;
+    rdfs:label "SMAD2" ;
+    hetio:chromosome "18" ;
+    hetio:description "SMAD family member 2" .
+ncbigene:801 a hetio:Gene ;
+    rdfs:label "CALM1" ;
+    hetio:chromosome "14" ;
+    hetio:description "calmodulin 1 (phosphorylase kinase, delta)" .
+db:DB00970 a hetio:Compound ;
+    rdfs:label "Dactinomycin" ;
+    hetio:inchikey "InChIKey=RJURFGZVJUQBHK-IIXSONLDSA-N" .
+ncbigene:10318 a hetio:Gene ;
+    rdfs:label "TNIP1" ;
+    hetio:chromosome "5" ;
+    hetio:description "TNFAIP3 interacting protein 1" .
+ncbigene:126823 a hetio:Gene ;
+    rdfs:label "KLHDC9" ;
+    hetio:chromosome "1" ;
+    hetio:description "kelch domain containing 9" .
+ncbigene:9542 a hetio:Gene ;
+    rdfs:label "NRG2" ;
+    hetio:chromosome "5" ;
+    hetio:description "neuregulin 2" .
+ncbigene:3838 a hetio:Gene ;
+    rdfs:label "KPNA2" ;
+    hetio:chromosome "17" ;
+    hetio:description "karyopherin alpha 2 (RAG cohort 1, importin alpha 1)" .
+ncbigene:5747 a hetio:Gene ;
+    rdfs:label "PTK2" ;
+    hetio:chromosome "8" ;
+    hetio:description "protein tyrosine kinase 2" .
+go:0030852 a hetio:BiologicalProcess ;
+    rdfs:label "regulation of granulocyte differentiation" .
+go:0051346 a hetio:BiologicalProcess ;
+    rdfs:label "negative regulation of hydrolase activity" .
+ncbigene:84335 a hetio:Gene ;
+    rdfs:label "AKT1S1" ;
+    hetio:chromosome "19" ;
+    hetio:description "AKT1 substrate 1 (proline-rich)" .
+go:0098780 a hetio:BiologicalProcess ;
+    rdfs:label "response to mitochondrial depolarisation" .
+uberon:0002369 a hetio:Anatomy ;
+    rdfs:label "adrenal gland" .
+ncbigene:10014 a hetio:Gene ;
+    rdfs:label "HDAC5" ;
+    hetio:chromosome "17" ;
+    hetio:description "histone deacetylase 5" .
+ncbigene:57827 a hetio:Gene ;
+    rdfs:label "C6orf47" ;
+    hetio:chromosome "6" ;
+    hetio:description "chromosome 6 open reading frame 47" .
+umls:C0032584 a hetio:SideEffect ;
+    rdfs:label "Polyp" .
+ncbigene:79573 a hetio:Gene ;
+    rdfs:label "TTC13" ;
+    hetio:chromosome "1" ;
+    hetio:description "tetratricopeptide repeat domain 13" .
+go:0006644 a hetio:BiologicalProcess ;
+    rdfs:label "phospholipid metabolic process" .
+ncbigene:6722 a hetio:Gene ;
+    rdfs:label "SRF" ;
+    hetio:chromosome "6" ;
+    hetio:description "serum response factor (c-fos serum response element-binding transcription factor)" .
+go:0051482 a hetio:BiologicalProcess ;
+    rdfs:label "positive regulation of cytosolic calcium ion concentration involved in phospholipase C-activating G-protein coupled signaling pathway" .
+pathway:PC7_5322 a hetio:Pathway ;
+    rdfs:label "Metabolism" .
+db:DB00575 a hetio:Compound ;
+    rdfs:label "Clonidine" ;
+    hetio:inchikey "InChIKey=GJSURZIOUXUGAL-UHFFFAOYSA-N" .
+ncbigene:53371 a hetio:Gene ;
+    rdfs:label "NUP54" ;
+    hetio:chromosome "4" ;
+    hetio:description "nucleoporin 54kDa" .
+ncbigene:56926 a hetio:Gene ;
+    rdfs:label "NCLN" ;
+    hetio:chromosome "19" ;
+    hetio:description "nicalin" .
+ncbigene:10096 a hetio:Gene ;
+    rdfs:label "ACTR3" ;
+    hetio:chromosome "2" ;
+    hetio:description "ARP3 actin-related protein 3 homolog (yeast)" .
+ncbigene:2954 a hetio:Gene ;
+    rdfs:label "GSTZ1" ;
+    hetio:chromosome "14" ;
+    hetio:description "glutathione S-transferase zeta 1" .
+ncbigene:3270 a hetio:Gene ;
+    rdfs:label "HRC" ;
+    hetio:chromosome "19" ;
+    hetio:description "histidine rich calcium binding protein" .
+ncbigene:7428 a hetio:Gene ;
+    rdfs:label "VHL" ;
+    hetio:chromosome "3" ;
+    hetio:description "von Hippel-Lindau tumor suppressor, E3 ubiquitin protein ligase" .
+go:0002694 a hetio:BiologicalProcess ;
+    rdfs:label "regulation of leukocyte activation" .
+ncbigene:7407 a hetio:Gene ;
+    rdfs:label "VARS" ;
+    hetio:chromosome "6" ;
+    hetio:description "valyl-tRNA synthetase" .
+ncbigene:5714 a hetio:Gene ;
+    rdfs:label "PSMD8" ;
+    hetio:chromosome "19" ;
+    hetio:description "proteasome (prosome, macropain) 26S subunit, non-ATPase, 8" .
+ncbigene:84148 a hetio:Gene ;
+    rdfs:label "KAT8" ;
+    hetio:chromosome "16" ;
+    hetio:description "K(lysine) acetyltransferase 8" .
+ncbigene:129521 a hetio:Gene ;
+    rdfs:label "NMS" ;
+    hetio:chromosome "2" ;
+    hetio:description "neuromedin S" .
+
+# --- Edges (base triple + RDF-star annotations) ---
+uberon:0000178 hetio:upregulates ncbigene:9489 .
+<< uberon:0000178 hetio:upregulates ncbigene:9489 >> hetio:direction "both" ;
+    hetio:source "Bgee" ;
+    hetio:unbiased true .
+uberon:0000992 hetio:expresses ncbigene:9816 .
+<< uberon:0000992 hetio:expresses ncbigene:9816 >> hetio:direction "both" ;
+    hetio:sources "Bgee" ;
+    hetio:unbiased true .
+uberon:0002450 hetio:expresses ncbigene:55093 .
+<< uberon:0002450 hetio:expresses ncbigene:55093 >> hetio:direction "both" ;
+    hetio:sources "Bgee" ;
+    hetio:unbiased true .
+ncbigene:801 hetio:interacts ncbigene:7428 .
+<< ncbigene:801 hetio:interacts ncbigene:7428 >> hetio:direction "both" ;
+    hetio:sources "II_literature" ;
+    hetio:sources "hetio-dag" ;
+    hetio:unbiased false .
+ncbigene:5987 hetio:interacts ncbigene:9412 .
+<< ncbigene:5987 hetio:interacts ncbigene:9412 >> hetio:direction "both" ;
+    hetio:sources "II_literature" ;
+    hetio:sources "hetio-dag" ;
+    hetio:unbiased false .
+ncbigene:701 hetio:participates pathway:PC7_6941 .
+<< ncbigene:701 hetio:participates pathway:PC7_6941 >> hetio:direction "both" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:source "Reactome via Pathway Commons" ;
+    hetio:unbiased false .
+uberon:0000474 hetio:expresses ncbigene:4824 .
+<< uberon:0000474 hetio:expresses ncbigene:4824 >> hetio:direction "both" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:sources "TISSUES" ;
+    hetio:unbiased false .
+uberon:0002082 hetio:downregulates ncbigene:1106 .
+<< uberon:0002082 hetio:downregulates ncbigene:1106 >> hetio:direction "both" ;
+    hetio:source "Bgee" ;
+    hetio:unbiased true .
+db:DB01179 hetio:upregulates ncbigene:6722 .
+<< db:DB01179 hetio:upregulates ncbigene:6722 >> hetio:direction "both" ;
+    hetio:source "LINCS L1000" ;
+    hetio:z_score "6.084"^^xsd:double ;
+    hetio:method "imputed" ;
+    hetio:unbiased true .
+ncbigene:5747 hetio:interacts ncbigene:79738 .
+<< ncbigene:5747 hetio:interacts ncbigene:79738 >> hetio:direction "both" ;
+    hetio:sources "hetio-dag" ;
+    hetio:unbiased false .
+db:DB00448 hetio:causes umls:C0032584 .
+<< db:DB00448 hetio:causes umls:C0032584 >> hetio:direction "both" ;
+    hetio:source "SIDER 4.1" ;
+    hetio:license "CC BY-NC-SA 4.0" ;
+    hetio:url "http://sideeffects.embl.de/se/C0032584/" ;
+    hetio:unbiased false .
+uberon:0002369 hetio:expresses ncbigene:10098 .
+<< uberon:0002369 hetio:expresses ncbigene:10098 >> hetio:direction "both" ;
+    hetio:sources "Bgee" ;
+    hetio:unbiased true .
+ncbigene:1636 hetio:participates pathway:PC7_5330 .
+<< ncbigene:1636 hetio:participates pathway:PC7_5330 >> hetio:direction "both" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:source "Reactome via Pathway Commons" ;
+    hetio:unbiased false .
+ncbigene:286257 hetio:participates go:0042803 .
+<< ncbigene:286257 hetio:participates go:0042803 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+db:DB00575 hetio:causes umls:C0424024 .
+<< db:DB00575 hetio:causes umls:C0424024 >> hetio:direction "both" ;
+    hetio:source "SIDER 4.1" ;
+    hetio:license "CC BY-NC-SA 4.0" ;
+    hetio:url "http://sideeffects.embl.de/se/C0424024/" ;
+    hetio:unbiased false .
+ncbigene:9021 hetio:participates go:0071357 .
+<< ncbigene:9021 hetio:participates go:0071357 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+ncbigene:51676 hetio:participates go:0098780 .
+<< ncbigene:51676 hetio:participates go:0098780 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+ncbigene:10419 hetio:participates go:0016274 .
+<< ncbigene:10419 hetio:participates go:0016274 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+ncbigene:19 hetio:participates go:0055088 .
+<< ncbigene:19 hetio:participates go:0055088 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+uberon:0002349 hetio:expresses ncbigene:80303 .
+<< uberon:0002349 hetio:expresses ncbigene:80303 >> hetio:direction "both" ;
+    hetio:sources "Bgee" ;
+    hetio:unbiased true .
+ncbigene:3176 hetio:participates go:0010243 .
+<< ncbigene:3176 hetio:participates go:0010243 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+db:DB00514 hetio:binds ncbigene:1136 .
+<< db:DB00514 hetio:binds ncbigene:1136 >> hetio:direction "both" ;
+    hetio:pubmed_ids "15356218" ;
+    hetio:actions "antagonist" ;
+    hetio:license "CC BY-NC 4.0" ;
+    hetio:sources "DrugBank (target)" ;
+    hetio:unbiased false .
+uberon:0000995 hetio:expresses ncbigene:23176 .
+<< uberon:0000995 hetio:expresses ncbigene:23176 >> hetio:direction "both" ;
+    hetio:sources "Bgee" ;
+    hetio:sources "TISSUES" ;
+    hetio:unbiased true .
+ncbigene:56647 hetio:regulates ncbigene:6596 .
+<< ncbigene:56647 hetio:regulates ncbigene:6596 >> hetio:direction "forward" ;
+    hetio:subtypes "knockdown downregulates" ;
+    hetio:source "LINCS L1000" ;
+    hetio:method "imputed" ;
+    hetio:unbiased true .
+uberon:0002185 hetio:downregulates ncbigene:2891 .
+<< uberon:0002185 hetio:downregulates ncbigene:2891 >> hetio:direction "both" ;
+    hetio:source "Bgee" ;
+    hetio:unbiased true .
+ncbigene:3039 hetio:participates go:0006898 .
+<< ncbigene:3039 hetio:participates go:0006898 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+ncbigene:84335 hetio:participates pathway:PC7_6994 .
+<< ncbigene:84335 hetio:participates pathway:PC7_6994 >> hetio:direction "both" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:source "Reactome via Pathway Commons" ;
+    hetio:unbiased false .
+ncbigene:5962 hetio:participates go:0051346 .
+<< ncbigene:5962 hetio:participates go:0051346 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+uberon:0002240 hetio:downregulates ncbigene:2733 .
+<< uberon:0002240 hetio:downregulates ncbigene:2733 >> hetio:direction "both" ;
+    hetio:source "Bgee" ;
+    hetio:unbiased true .
+uberon:0000955 hetio:downregulates ncbigene:3270 .
+<< uberon:0000955 hetio:downregulates ncbigene:3270 >> hetio:direction "both" ;
+    hetio:source "Bgee" ;
+    hetio:unbiased true .
+ncbigene:4948 hetio:participates go:0015179 .
+<< ncbigene:4948 hetio:participates go:0015179 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+ncbigene:3725 hetio:interacts ncbigene:10514 .
+<< ncbigene:3725 hetio:interacts ncbigene:10514 >> hetio:direction "both" ;
+    hetio:sources "II_literature" ;
+    hetio:sources "hetio-dag" ;
+    hetio:unbiased false .
+do:263 hetio:associates ncbigene:3439 .
+<< do:263 hetio:associates ncbigene:3439 >> hetio:direction "both" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:sources "DISEASES" ;
+    hetio:unbiased false .
+uberon:0000996 hetio:expresses ncbigene:132320 .
+<< uberon:0000996 hetio:expresses ncbigene:132320 >> hetio:direction "both" ;
+    hetio:sources "Bgee" ;
+    hetio:unbiased true .
+uberon:0000033 hetio:expresses ncbigene:158399 .
+<< uberon:0000033 hetio:expresses ncbigene:158399 >> hetio:direction "both" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:sources "TISSUES" ;
+    hetio:unbiased true .
+ncbigene:999 hetio:participates go:0005913 .
+<< ncbigene:999 hetio:participates go:0005913 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+ncbigene:841 hetio:participates go:0043207 .
+<< ncbigene:841 hetio:participates go:0043207 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+uberon:0000996 hetio:downregulates ncbigene:80303 .
+<< uberon:0000996 hetio:downregulates ncbigene:80303 >> hetio:direction "both" ;
+    hetio:source "Bgee" ;
+    hetio:unbiased true .
+uberon:0002107 hetio:downregulates ncbigene:126823 .
+<< uberon:0002107 hetio:downregulates ncbigene:126823 >> hetio:direction "both" ;
+    hetio:source "Bgee" ;
+    hetio:unbiased true .
+ncbigene:10014 hetio:interacts ncbigene:55844 .
+<< ncbigene:10014 hetio:interacts ncbigene:55844 >> hetio:direction "both" ;
+    hetio:sources "hetio-dag" ;
+    hetio:unbiased false .
+ncbigene:6924 hetio:participates go:0006354 .
+<< ncbigene:6924 hetio:participates go:0006354 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+uberon:0001893 hetio:expresses ncbigene:4535 .
+<< uberon:0001893 hetio:expresses ncbigene:4535 >> hetio:direction "both" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:sources "TISSUES" ;
+    hetio:unbiased true .
+ncbigene:9542 hetio:participates pathway:PC7_2926 .
+<< ncbigene:9542 hetio:participates pathway:PC7_2926 >> hetio:direction "both" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:source "Reactome via Pathway Commons" ;
+    hetio:unbiased false .
+uberon:0002369 hetio:upregulates ncbigene:728577 .
+<< uberon:0002369 hetio:upregulates ncbigene:728577 >> hetio:direction "both" ;
+    hetio:source "Bgee" ;
+    hetio:unbiased true .
+ncbigene:7407 hetio:participates go:0006417 .
+<< ncbigene:7407 hetio:participates go:0006417 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+ncbigene:9370 hetio:participates go:0030852 .
+<< ncbigene:9370 hetio:participates go:0030852 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+ncbigene:7471 hetio:participates pathway:WP560_r83868 .
+<< ncbigene:7471 hetio:participates pathway:WP560_r83868 >> hetio:direction "both" ;
+    hetio:license "CC BY 3.0" ;
+    hetio:source "WikiPathways" ;
+    hetio:url "http://www.wikipathways.org/instance/WP560_r83868" ;
+    hetio:unbiased false .
+ncbigene:8607 hetio:regulates ncbigene:11065 .
+<< ncbigene:8607 hetio:regulates ncbigene:11065 >> hetio:direction "forward" ;
+    hetio:subtypes "knockdown downregulates" ;
+    hetio:source "LINCS L1000" ;
+    hetio:method "measured" ;
+    hetio:unbiased true .
+ncbigene:6130 hetio:participates pathway:WP477_r67139 .
+<< ncbigene:6130 hetio:participates pathway:WP477_r67139 >> hetio:direction "both" ;
+    hetio:license "CC BY 3.0" ;
+    hetio:source "WikiPathways" ;
+    hetio:url "http://www.wikipathways.org/instance/WP477_r67139" ;
+    hetio:unbiased false .
+ncbigene:55272 hetio:covaries ncbigene:504189 .
+<< ncbigene:55272 hetio:covaries ncbigene:504189 >> hetio:direction "both" ;
+    hetio:source "ERC" ;
+    hetio:unbiased true .
+ncbigene:583 hetio:participates go:0008015 .
+<< ncbigene:583 hetio:participates go:0008015 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+uberon:0000948 hetio:downregulates ncbigene:51523 .
+<< uberon:0000948 hetio:downregulates ncbigene:51523 >> hetio:direction "both" ;
+    hetio:source "Bgee" ;
+    hetio:unbiased true .
+ncbigene:7101 hetio:participates go:0050768 .
+<< ncbigene:7101 hetio:participates go:0050768 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+ncbigene:8741 hetio:participates go:0002694 .
+<< ncbigene:8741 hetio:participates go:0002694 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+db:DB00970 hetio:downregulates ncbigene:64121 .
+<< db:DB00970 hetio:downregulates ncbigene:64121 >> hetio:direction "both" ;
+    hetio:source "LINCS L1000" ;
+    hetio:z_score "-11.024"^^xsd:double ;
+    hetio:method "imputed" ;
+    hetio:unbiased true .
+ncbigene:2099 hetio:interacts ncbigene:6206 .
+<< ncbigene:2099 hetio:interacts ncbigene:6206 >> hetio:direction "both" ;
+    hetio:sources "hetio-dag" ;
+    hetio:unbiased false .
+ncbigene:80243 hetio:participates go:0005085 .
+<< ncbigene:80243 hetio:participates go:0005085 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+uberon:0000955 hetio:expresses ncbigene:129521 .
+<< uberon:0000955 hetio:expresses ncbigene:129521 >> hetio:direction "both" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:sources "TISSUES" ;
+    hetio:unbiased false .
+ncbigene:4087 hetio:interacts ncbigene:10589 .
+<< ncbigene:4087 hetio:interacts ncbigene:10589 >> hetio:direction "both" ;
+    hetio:sources "II_literature" ;
+    hetio:sources "hetio-dag" ;
+    hetio:unbiased false .
+uberon:0001295 hetio:downregulates ncbigene:133688 .
+<< uberon:0001295 hetio:downregulates ncbigene:133688 >> hetio:direction "both" ;
+    hetio:source "Bgee" ;
+    hetio:unbiased true .
+db:DB00686 hetio:binds ncbigene:2246 .
+<< db:DB00686 hetio:binds ncbigene:2246 >> hetio:direction "both" ;
+    hetio:pubmed_ids "17071728" ;
+    hetio:pubmed_ids "8867461" ;
+    hetio:pubmed_ids "8946244" ;
+    hetio:actions "antagonist" ;
+    hetio:license "CC BY-NC 4.0" ;
+    hetio:sources "DrugBank (target)" ;
+    hetio:unbiased false .
+ncbigene:5927 hetio:regulates ncbigene:8407 .
+<< ncbigene:5927 hetio:regulates ncbigene:8407 >> hetio:direction "forward" ;
+    hetio:subtypes "knockdown downregulates" ;
+    hetio:source "LINCS L1000" ;
+    hetio:method "imputed" ;
+    hetio:unbiased true .
+ncbigene:5604 hetio:participates pathway:PC7_7457 .
+<< ncbigene:5604 hetio:participates pathway:PC7_7457 >> hetio:direction "both" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:source "Reactome via Pathway Commons" ;
+    hetio:unbiased false .
+ncbigene:6233 hetio:regulates ncbigene:5909 .
+<< ncbigene:6233 hetio:regulates ncbigene:5909 >> hetio:direction "forward" ;
+    hetio:subtypes "knockdown upregulates" ;
+    hetio:source "LINCS L1000" ;
+    hetio:method "measured" ;
+    hetio:unbiased true .
+ncbigene:5714 hetio:participates go:0070201 .
+<< ncbigene:5714 hetio:participates go:0070201 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+ncbigene:84148 hetio:participates go:0010506 .
+<< ncbigene:84148 hetio:participates go:0010506 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+ncbigene:25793 hetio:regulates ncbigene:2954 .
+<< ncbigene:25793 hetio:regulates ncbigene:2954 >> hetio:direction "forward" ;
+    hetio:subtypes "knockdown upregulates" ;
+    hetio:source "LINCS L1000" ;
+    hetio:method "measured" ;
+    hetio:unbiased true .
+uberon:0000955 hetio:downregulates ncbigene:57827 .
+<< uberon:0000955 hetio:downregulates ncbigene:57827 >> hetio:direction "both" ;
+    hetio:source "Bgee" ;
+    hetio:unbiased true .
+ncbigene:53371 hetio:participates go:0016925 .
+<< ncbigene:53371 hetio:participates go:0016925 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+uberon:0002369 hetio:expresses ncbigene:79573 .
+<< uberon:0002369 hetio:expresses ncbigene:79573 >> hetio:direction "both" ;
+    hetio:sources "Bgee" ;
+    hetio:unbiased true .
+ncbigene:51290 hetio:regulates ncbigene:3838 .
+<< ncbigene:51290 hetio:regulates ncbigene:3838 >> hetio:direction "forward" ;
+    hetio:subtypes "knockdown downregulates" ;
+    hetio:source "LINCS L1000" ;
+    hetio:method "imputed" ;
+    hetio:unbiased true .
+ncbigene:55179 hetio:regulates ncbigene:80347 .
+<< ncbigene:55179 hetio:regulates ncbigene:80347 >> hetio:direction "forward" ;
+    hetio:subtypes "overexpression downregulates" ;
+    hetio:source "LINCS L1000" ;
+    hetio:method "measured" ;
+    hetio:unbiased true .
+ncbigene:2687 hetio:participates pathway:PC7_5322 .
+<< ncbigene:2687 hetio:participates pathway:PC7_5322 >> hetio:direction "both" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:source "Reactome via Pathway Commons" ;
+    hetio:unbiased false .
+uberon:0000178 hetio:downregulates ncbigene:51761 .
+<< uberon:0000178 hetio:downregulates ncbigene:51761 >> hetio:direction "both" ;
+    hetio:source "Bgee" ;
+    hetio:unbiased true .
+ncbigene:2011 hetio:participates go:0010720 .
+<< ncbigene:2011 hetio:participates go:0010720 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+uberon:0002367 hetio:expresses ncbigene:7556 .
+<< uberon:0002367 hetio:expresses ncbigene:7556 >> hetio:direction "both" ;
+    hetio:sources "Bgee" ;
+    hetio:unbiased true .
+uberon:0002185 hetio:expresses ncbigene:10556 .
+<< uberon:0002185 hetio:expresses ncbigene:10556 >> hetio:direction "both" ;
+    hetio:sources "Bgee" ;
+    hetio:unbiased true .
+db:DB00734 hetio:causes umls:C0235309 .
+<< db:DB00734 hetio:causes umls:C0235309 >> hetio:direction "both" ;
+    hetio:source "SIDER 4.1" ;
+    hetio:license "CC BY-NC-SA 4.0" ;
+    hetio:url "http://sideeffects.embl.de/se/C0235309/" ;
+    hetio:unbiased false .
+uberon:0004535 hetio:expresses ncbigene:10096 .
+<< uberon:0004535 hetio:expresses ncbigene:10096 >> hetio:direction "both" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:sources "TISSUES" ;
+    hetio:unbiased true .
+ncbigene:8772 hetio:covaries ncbigene:54964 .
+<< ncbigene:8772 hetio:covaries ncbigene:54964 >> hetio:direction "both" ;
+    hetio:source "ERC" ;
+    hetio:unbiased true .
+uberon:0002030 hetio:expresses ncbigene:23070 .
+<< uberon:0002030 hetio:expresses ncbigene:23070 >> hetio:direction "both" ;
+    hetio:sources "Bgee" ;
+    hetio:unbiased true .
+ncbigene:7155 hetio:participates go:0016887 .
+<< ncbigene:7155 hetio:participates go:0016887 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+ncbigene:51172 hetio:regulates ncbigene:8914 .
+<< ncbigene:51172 hetio:regulates ncbigene:8914 >> hetio:direction "forward" ;
+    hetio:subtypes "knockdown downregulates" ;
+    hetio:source "LINCS L1000" ;
+    hetio:method "measured" ;
+    hetio:unbiased true .
+ncbigene:3670 hetio:participates go:0031056 .
+<< ncbigene:3670 hetio:participates go:0031056 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+db:DB06817 hetio:causes umls:C0014724 .
+<< db:DB06817 hetio:causes umls:C0014724 >> hetio:direction "both" ;
+    hetio:source "SIDER 4.1" ;
+    hetio:license "CC BY-NC-SA 4.0" ;
+    hetio:url "http://sideeffects.embl.de/se/C0014724/" ;
+    hetio:unbiased false .
+ncbigene:10868 hetio:regulates ncbigene:5743 .
+<< ncbigene:10868 hetio:regulates ncbigene:5743 >> hetio:direction "forward" ;
+    hetio:subtypes "knockdown upregulates" ;
+    hetio:source "LINCS L1000" ;
+    hetio:method "measured" ;
+    hetio:unbiased true .
+ncbigene:10908 hetio:participates go:0006644 .
+<< ncbigene:10908 hetio:participates go:0006644 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+ncbigene:5684 hetio:participates go:0042770 .
+<< ncbigene:5684 hetio:participates go:0042770 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+uberon:0002081 hetio:expresses ncbigene:2907 .
+<< uberon:0002081 hetio:expresses ncbigene:2907 >> hetio:direction "both" ;
+    hetio:sources "Bgee" ;
+    hetio:unbiased true .
+ncbigene:8204 hetio:participates go:0048609 .
+<< ncbigene:8204 hetio:participates go:0048609 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+ncbigene:10318 hetio:regulates ncbigene:56926 .
+<< ncbigene:10318 hetio:regulates ncbigene:56926 >> hetio:direction "forward" ;
+    hetio:subtypes "knockdown upregulates" ;
+    hetio:source "LINCS L1000" ;
+    hetio:method "imputed" ;
+    hetio:unbiased true .
+ncbigene:4040 hetio:participates go:0099537 .
+<< ncbigene:4040 hetio:participates go:0099537 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+ncbigene:1812 hetio:participates go:0051482 .
+<< ncbigene:1812 hetio:participates go:0051482 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+ncbigene:8416 hetio:participates go:0001786 .
+<< ncbigene:8416 hetio:participates go:0001786 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+ncbigene:2195 hetio:regulates ncbigene:3930 .
+<< ncbigene:2195 hetio:regulates ncbigene:3930 >> hetio:direction "forward" ;
+    hetio:subtypes "knockdown downregulates" ;
+    hetio:source "LINCS L1000" ;
+    hetio:method "measured" ;
+    hetio:unbiased true .
+ncbigene:79724 hetio:regulates ncbigene:6119 .
+<< ncbigene:79724 hetio:regulates ncbigene:6119 >> hetio:direction "forward" ;
+    hetio:subtypes "knockdown downregulates" ;
+    hetio:source "LINCS L1000" ;
+    hetio:method "measured" ;
+    hetio:unbiased true .
+ncbigene:3198 hetio:participates go:0048568 .
+<< ncbigene:3198 hetio:participates go:0048568 >> hetio:direction "both" ;
+    hetio:source "NCBI gene2go" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:unbiased false .
+uberon:0001017 hetio:expresses ncbigene:164684 .
+<< uberon:0001017 hetio:expresses ncbigene:164684 >> hetio:direction "both" ;
+    hetio:license "CC BY 4.0" ;
+    hetio:sources "TISSUES" ;
+    hetio:unbiased false .
+db:DB00448 hetio:causes umls:C0001824 .
+<< db:DB00448 hetio:causes umls:C0001824 >> hetio:direction "both" ;
+    hetio:source "SIDER 4.1" ;
+    hetio:license "CC BY-NC-SA 4.0" ;
+    hetio:url "http://sideeffects.embl.de/se/C0001824/" ;
+    hetio:unbiased false .
+ncbigene:388630 hetio:covaries ncbigene:79192 .
+<< ncbigene:388630 hetio:covaries ncbigene:79192 >> hetio:direction "both" ;
+    hetio:source "ERC" ;
+    hetio:unbiased true .
