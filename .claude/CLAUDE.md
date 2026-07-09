@@ -43,16 +43,17 @@ against a **GraphDB ground truth**. It is not a benchmark. There is no LLM and n
 
 ## Store layout to implement
 
-| Table      | Store           | Filter                     |
-|------------|-----------------|----------------------------|
-| `gene`     | Postgres        | nodes.tsv kind=Gene        |
-| `disease`  | Postgres        | nodes.tsv kind=Disease     |
-| `compound` | Iceberg/MinIO   | nodes.tsv kind=Compound    |
-| `edge_dag` | Postgres        | edges.sif metaedge=DaG     |
-| `edge_cbg` | Postgres        | edges.sif metaedge=CbG     |
-| `edge_ctd` | Iceberg/MinIO   | edges.sif metaedge=CtD     |
+| Table                        | Store           | Filter                     |
+|------------------------------|-----------------|----------------------------|
+| `gene`                       | Postgres        | nodes.tsv kind=Gene        |
+| `disease`                    | Postgres        | nodes.tsv kind=Disease     |
+| `compound`                   | Iceberg/MinIO   | nodes.tsv kind=Compound    |
+| `gene_disease_association`   | Postgres        | edges.sif metaedge=DaG     |
+| `compound_gene_binding`      | Postgres        | edges.sif metaedge=CbG     |
+| `compound_disease_treatment` | Iceberg/MinIO   | edges.sif metaedge=CtD     |
 
-Node tables: `(id TEXT, name TEXT)`. Edge tables: `(source_id TEXT, target_id TEXT)`. No FK
+The edge tables use associative-noun names (junction tables), not graph-topology names. Node
+tables: `(id TEXT, name TEXT)`. Association tables: `(source_id TEXT, target_id TEXT)`. No FK
 constraints (cross-store joins are keyed on id strings, unenforced — this is intentional).
 
 ## Rung build order
@@ -61,7 +62,7 @@ constraints (cross-store joins are keyed on id strings, unenforced — this is i
   `gene` load. Hit the endpoint with `q08` (`SELECT * WHERE {?s ?p ?o} LIMIT 1`). Confirm the
   endpoint boots and a mapping/connection error would surface clearly. This replaces any
   "SPARQL-only" idea — Ontop needs a source, so this is a smoke test, not a query test.
-- **Rung 2 — Ontop → Postgres.** Full Postgres slice (`gene`, `disease`, `edge_dag`). Map to
+- **Rung 2 — Ontop → Postgres.** Full Postgres slice (`gene`, `disease`, `gene_disease_association`). Map to
   `hetio:Gene`/`hetio:Disease`/`rdfs:label` and `?d hetio:associates ?g`. Run `q02`, `q05`;
   parity vs ground truth.
 - **Rung 3 — Ontop → Trino → Iceberg.** Bring up `minio` + Iceberg catalog + `trino`. Load
@@ -69,7 +70,7 @@ constraints (cross-store joins are keyed on id strings, unenforced — this is i
   catalog only (`mappings/iceberg.obda`, tables like `iceberg.hetionet.compound`). Run `q01`,
   `q06`; parity.
 - **Rung 4 — Ontop → Trino → (Postgres + Iceberg).** Trino now exposes both `postgresql` and
-  `iceberg` catalogs; load `edge_cbg` (PG) and `edge_ctd` (Iceberg). Use `mappings/polyglot.obda`
+  `iceberg` catalogs; load `compound_gene_binding` (PG) and `compound_disease_treatment` (Iceberg). Use `mappings/polyglot.obda`
   addressing `postgresql.public.*` and `iceberg.hetionet.*`. Run `q03`, `q04`, `q07` — each must
   force a cross-catalog join. Parity, then tag `v0.1.0`.
 

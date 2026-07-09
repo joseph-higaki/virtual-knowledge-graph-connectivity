@@ -24,8 +24,8 @@ virtual-knowledge-graph-connectivity/
 ├── ingest/
 │   ├── fetch.py                    # download the three files above from hetio/hetionet
 │   ├── build_tables.py            # TSV -> per-type node CSVs + per-metaedge edge CSVs (SLICE ONLY)
-│   ├── load_postgres.py           # DDL + COPY: gene, disease, edge_dag, edge_cbg
-│   ├── load_iceberg.py            # Trino DDL + INSERT: compound, edge_ctd  (Iceberg catalog on MinIO)
+│   ├── load_postgres.py           # DDL + COPY: gene, disease, gene_disease_association, compound_gene_binding
+│   ├── load_iceberg.py            # Trino DDL + INSERT: compound, compound_disease_treatment  (Iceberg catalog on MinIO)
 │   └── build_rdf.py               # OPTIONAL: TSV -> hetionet.ttl for a clean-provenance local ground truth
 │
 ├── ontology/
@@ -33,7 +33,7 @@ virtual-knowledge-graph-connectivity/
 │                                  # Present so Phase 2.0 can reuse it later. Not under test here.
 │
 ├── mappings/
-│   ├── postgres.obda              # rung 2: bare tables  (gene, disease, edge_dag)
+│   ├── postgres.obda              # rung 2: bare tables  (gene, disease, gene_disease_association)
 │   ├── iceberg.obda               # rung 3: iceberg.hetionet.compound  (via Trino, iceberg catalog only)
 │   └── polyglot.obda              # rung 4: postgresql.public.* + iceberg.hetionet.*  (via Trino, both catalogs)
 │
@@ -66,14 +66,17 @@ take qyeries / questions as indicative. Use same rationale to test different run
 
 ## Store layout (the slice)
 
-| Table        | Store             | Populated from                       | Role                         |
-|--------------|-------------------|--------------------------------------|------------------------------|
-| `gene`       | Postgres          | nodes.tsv where kind=Gene            | node                         |
-| `disease`    | Postgres          | nodes.tsv where kind=Disease         | node                         |
-| `compound`   | Iceberg (MinIO)   | nodes.tsv where kind=Compound        | node                         |
-| `edge_dag`   | Postgres          | edges.sif where metaedge=DaG         | single-store edge (rung 2)   |
-| `edge_cbg`   | Postgres          | edges.sif where metaedge=CbG         | cross-store edge, PG-side    |
-| `edge_ctd`   | Iceberg (MinIO)   | edges.sif where metaedge=CtD         | cross-store edge, lake-side  |
+| Table                        | Store             | Populated from                       | Role                         |
+|------------------------------|-------------------|--------------------------------------|------------------------------|
+| `gene`                       | Postgres          | nodes.tsv where kind=Gene            | node                         |
+| `disease`                    | Postgres          | nodes.tsv where kind=Disease         | node                         |
+| `compound`                   | Iceberg (MinIO)   | nodes.tsv where kind=Compound        | node                         |
+| `gene_disease_association`   | Postgres          | edges.sif where metaedge=DaG         | single-store edge (rung 2)   |
+| `compound_gene_binding`      | Postgres          | edges.sif where metaedge=CbG         | cross-store edge, PG-side    |
+| `compound_disease_treatment` | Iceberg (MinIO)   | edges.sif where metaedge=CtD         | cross-store edge, lake-side  |
+
+Edge tables are named as relational junction/association tables (`<pair>_<relationship-noun>`),
+not by their Hetionet metaedge abbreviation.
 
 Metaedge abbreviations (`DaG`, `CbG`, `CtD`) must be confirmed against `metaedges.tsv` before
 filtering — do not assume casing.

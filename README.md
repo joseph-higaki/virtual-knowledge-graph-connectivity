@@ -91,11 +91,11 @@ erDiagram
         text id PK
         text name
     }
-    EDGE_DAG {
+    GENE_DISEASE_ASSOCIATION {
         text source_id FK "-> disease.id"
         text target_id FK "-> gene.id"
     }
-    EDGE_CBG {
+    COMPOUND_GENE_BINDING {
         text source_id FK "-> compound.id (in Iceberg)"
         text target_id FK "-> gene.id"
     }
@@ -103,10 +103,10 @@ erDiagram
         text id "resides in Iceberg"
     }
 
-    DISEASE  ||--o{ EDGE_DAG : "associates (source)"
-    GENE     ||--o{ EDGE_DAG : "target"
-    GENE     ||--o{ EDGE_CBG : "binds (target)"
-    COMPOUND ||..o{ EDGE_CBG : "source: cross-store, unenforced"
+    DISEASE  ||--o{ GENE_DISEASE_ASSOCIATION : "associates (source)"
+    GENE     ||--o{ GENE_DISEASE_ASSOCIATION : "target"
+    GENE     ||--o{ COMPOUND_GENE_BINDING : "binds (target)"
+    COMPOUND ||..o{ COMPOUND_GENE_BINDING : "source: cross-store, unenforced"
 ```
 
 ### Iceberg (on MinIO)
@@ -117,7 +117,7 @@ erDiagram
         text id "no key enforcement"
         text name
     }
-    EDGE_CTD {
+    COMPOUND_DISEASE_TREATMENT {
         text source_id "-> compound.id"
         text target_id "-> disease.id (in Postgres)"
     }
@@ -125,33 +125,33 @@ erDiagram
         text id "resides in Postgres"
     }
 
-    COMPOUND ||--o{ EDGE_CTD : "treats (source)"
-    DISEASE  ||..o{ EDGE_CTD : "target: cross-store, unenforced"
+    COMPOUND ||--o{ COMPOUND_DISEASE_TREATMENT : "treats (source)"
+    DISEASE  ||..o{ COMPOUND_DISEASE_TREATMENT : "target: cross-store, unenforced"
 ```
 
 ### Combined — where federation happens
 
 Solid edges stay inside one store; the two dashed edges cross the boundary and are exactly what
-Trino federates at rung 4. Node tables are cylinders, edge (association) tables are parallelograms.
+Trino federates at rung 4. Node tables are cylinders, association (junction) tables are parallelograms.
 
 ```mermaid
 flowchart TB
     subgraph PG["PostgreSQL"]
         gene[("gene")]
         disease[("disease")]
-        edge_dag[/"edge_dag"/]
-        edge_cbg[/"edge_cbg"/]
+        gene_disease_association[/"gene_disease_association"/]
+        compound_gene_binding[/"compound_gene_binding"/]
     end
     subgraph ICE["Iceberg (MinIO)"]
         compound[("compound")]
-        edge_ctd[/"edge_ctd"/]
+        compound_disease_treatment[/"compound_disease_treatment"/]
     end
 
-    disease -->|associates| edge_dag --> gene
-    edge_cbg -->|binds| gene
-    compound -.->|"binds: cross-store join (Trino)"| edge_cbg
-    compound -->|treats| edge_ctd
-    edge_ctd -.->|"treats: cross-store join (Trino)"| disease
+    disease -->|associates| gene_disease_association --> gene
+    compound_gene_binding -->|binds| gene
+    compound -.->|"binds: cross-store join (Trino)"| compound_gene_binding
+    compound -->|treats| compound_disease_treatment
+    compound_disease_treatment -.->|"treats: cross-store join (Trino)"| disease
 ```
 
 ## The ground truth
