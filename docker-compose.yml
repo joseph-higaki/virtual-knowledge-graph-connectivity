@@ -9,9 +9,11 @@ services:
     image: postgres:16.4
     profiles: ["rung0", "rung2", "rung3", "rung4"]
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      # `:?` aborts `compose up` by name if unset/empty — an empty USER/DB would silently
+      # coerce the Postgres image to its own defaults (db != yours), masking the misconfig.
+      POSTGRES_DB: ${POSTGRES_DB:?set POSTGRES_DB in secrets/.env}
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in secrets/.env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in secrets/.env}
     ports:
       - "${POSTGRES_HOST_PORT:-5432}:5432"
     volumes:

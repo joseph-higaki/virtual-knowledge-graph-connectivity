@@ -16,13 +16,13 @@ from pathlib import Path
 
 import requests
 
-from .config import ENDPOINTS
+from .config import ENDPOINTS, endpoint_url
 
 
 def run_query(endpoint: str, query: str, timeout: float = 60.0) -> dict:
     if endpoint not in ENDPOINTS:
         raise ValueError(f"unknown endpoint {endpoint!r}; choose from {sorted(ENDPOINTS)}")
-    url = ENDPOINTS[endpoint]
+    url = endpoint_url(endpoint)
     headers = {
         "Content-Type": "application/sparql-query",
         "Accept": "application/sparql-results+json",
