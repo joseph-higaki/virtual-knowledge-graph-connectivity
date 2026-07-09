@@ -165,7 +165,25 @@ For reference smoke (partial) and full ABOX RDF is data/hetionet/rdf
 
 ## Running it
 
-TBD
+Prereqs: Docker + Docker Compose, Python 3.11+, `make`. Config/secrets live in `secrets/.env`
+(copy from `secrets/.env.example`).
+
+### Rung 0 — liveness (Ontop → Postgres)
+
+```
+make deps        # .venv (editable install) + pinned Postgres JDBC driver — one-time
+make up-rung0    # start Postgres (self-seeds 8 genes via initdb) + standalone Ontop
+make test-rung0  # q08 (SELECT * LIMIT 1) returns a binding → endpoint is live
+make smoke       # same query, prints rows + telemetry dict
+make ui          # prints the Ontop console URL
+```
+
+The SPARQL console is Ontop's built-in **YASGUI** at <http://localhost:8080/> — syntax
+highlighting out of the box. Right-click the editor → **View SQL translation** to see the
+SPARQL→SQL rewrite Ontop pushes to the source. `make down` stops containers (keeps data);
+`make clean` also drops the `pgdata` volume (forces a re-seed on next `up`).
+
+Rungs 2–4: TBD.
 
 ## Explicitly out of scope (deferred, on purpose)
 

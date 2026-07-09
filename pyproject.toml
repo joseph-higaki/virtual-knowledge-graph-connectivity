@@ -1,0 +1,31 @@
+[project]
+name = "vkg-connectivity"
+version = "0.1.0"
+description = "VKG/OBDA connectivity + fidelity harness (Ontop -> Trino -> Postgres/Iceberg) validated against a GraphDB oracle"
+requires-python = ">=3.11"
+# Pinned in code, not prose. Rungs 2+ add psycopg, trino, SPARQLWrapper.
+dependencies = [
+    "requests==2.32.3",
+    "python-dotenv==1.0.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.3.3",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["harness"]
+
+[tool.pytest.ini_options]
+testpaths = ["harness"]
+markers = [
+    "rung0: endpoint liveness smoke (Ontop -> Postgres, gene only)",
+    "rung2: Ontop -> Postgres parity",
+    "rung3: Ontop -> Trino -> Iceberg parity",
+    "rung4: Ontop -> Trino -> (Postgres + Iceberg) polyglot parity",
+]

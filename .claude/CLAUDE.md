@@ -34,7 +34,9 @@ against a **GraphDB oracle**. It is not a benchmark. There is no LLM and no reas
    sorted, modulo order. A rung passes iff Ontop's label bindings equal the oracle's.
 8. **Local-first, cost-conscious.** Everything runs in `docker compose`. No cloud SaaS
    dependency (no real Snowflake/Databricks). No orchestration frameworks. Hand-rolled Python
-   (`requests`/`SPARQLWrapper`, `psycopg`, `trino` python client, `pytest`).
+   (`requests`/`SPARQLWrapper`, `psycopg`, `trino` python client, `pytest`). Python runs in a
+   local `.venv` (`make venv`); dependencies + tool config are pinned in `pyproject.toml` (the
+   `harness` package is installed editable). Never install into system Python.
 9. **Build rung by rung, in order (0 → 2 → 3 → 4).** Do not scaffold polyglot first. Each rung
    must pass its tests before the next is started. After a later rung lands, earlier rungs stay
    runnable via compose profiles + make targets.

@@ -29,6 +29,9 @@ data/hetionet/**
 !data/hetionet/rdf/
 !data/hetionet/rdf/hetionet-smoke.ttl
 
+# --- Fetched JDBC drivers (pinned + downloaded by `make deps`) ---
+ontop/jdbc/
+
 # --- Local docker volume mounts (if bind-mounted rather than named volumes) ---
 .volumes/
 minio-data/

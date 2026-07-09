@@ -1,0 +1,52 @@
+name: vkg-connectivity
+
+# Rung 0 (liveness): Postgres + standalone Ontop only. Later rungs add minio/trino
+# and swap Ontop's mapping — added when each rung is built, not scaffolded ahead (see CLAUDE.md).
+# Run via the Makefile so secrets/.env is passed: `docker compose --env-file secrets/.env ...`.
+
+services:
+  postgres:
+    image: postgres:16.4
+    profiles: ["rung0", "rung2", "rung3", "rung4"]
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # initdb/*.sql runs only on first boot of an empty data dir; `make clean` resets it.
+      - ./postgres/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  ontop:
+    image: ontop/ontop:5.5.0
+    profiles: ["rung0"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ONTOP_MAPPING_FILE: /opt/ontop/input/postgres.obda
+      ONTOP_PROPERTIES_FILE: /opt/ontop/input/postgres.properties
+      # DB credentials injected here (from secrets/.env) so no password sits in a mounted file.
+      ONTOP_DB_USER: ${POSTGRES_USER}
+      ONTOP_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      ONTOP_CORS_ALLOWED_ORIGINS: "*"
+      # Lazy init: the endpoint boots first and connects on the first query, so a mapping or
+      # connection fault surfaces as a clear query-time error — exactly rung 0's smoke goal.
+      ONTOP_LAZY_INIT: "true"
+      ONTOP_DEV_MODE: "true"
+    ports:
+      - "${ONTOP_HOST_PORT:-8080}:8080"
+    volumes:
+      - ./mappings/postgres.obda:/opt/ontop/input/postgres.obda:ro
+      - ./ontop/postgres.properties:/opt/ontop/input/postgres.properties:ro
+      - ./ontop/jdbc:/opt/ontop/jdbc:ro
+
+volumes:
+  pgdata:

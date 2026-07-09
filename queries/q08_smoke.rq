@@ -1,0 +1,3 @@
+# rung 0 — endpoint liveness. Return one arbitrary triple; proves Ontop booted,
+# read the mapping, and can reach Postgres. A mapping/connection fault fails here.
+SELECT * WHERE { ?s ?p ?o } LIMIT 1
