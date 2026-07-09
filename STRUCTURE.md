@@ -2,16 +2,16 @@
 
 This is the suggested tree. It is a **connectivity + fidelity
 harness**, not a benchmark. It exercises exactly one axis — *where the ABox physically lives* —
-with human-written SPARQL, reasoning off, and parity checked against a GraphDB oracle.
+with human-written SPARQL, reasoning off, and parity checked against a GraphDB ground truth.
 
 ```
 virtual-knowledge-graph-connectivity/
 ├── README.md                       # what/why, the rung ladder, how to run, scope
 ├── CLAUDE.md                       # hard constraints + build order for the coding session
 ├── STRUCTURE.md                    # this file
-├── docker-compose.yml              # profiles: postgres | minio | trino | ontop  (graphdb oracle = external by default)
+├── docker-compose.yml              # profiles: postgres | minio | trino | ontop  (graphdb ground truth = external by default)
 ├── secrets/
-│   ├── .env.example                # ORACLE_SPARQL_URL, ONTOP_SPARQL_URL, MinIO dev creds, JDBC coords (tracked)
+│   ├── .env.example                # GROUND_TRUTH_SPARQL_URL, ONTOP_SPARQL_URL, MinIO dev creds, JDBC coords (tracked)
 │   └── .env                        # real dev values (gitignored)
 ├── Makefile                        # fetch, up-rung{0,2,3,4}, load-*, test-rung{0,2,3,4}, parity, down
 │
@@ -26,7 +26,7 @@ virtual-knowledge-graph-connectivity/
 │   ├── build_tables.py            # TSV -> per-type node CSVs + per-metaedge edge CSVs (SLICE ONLY)
 │   ├── load_postgres.py           # DDL + COPY: gene, disease, edge_dag, edge_cbg
 │   ├── load_iceberg.py            # Trino DDL + INSERT: compound, edge_ctd  (Iceberg catalog on MinIO)
-│   └── build_rdf.py               # OPTIONAL: TSV -> hetionet.ttl for a clean-provenance local oracle
+│   └── build_rdf.py               # OPTIONAL: TSV -> hetionet.ttl for a clean-provenance local ground truth
 │
 ├── ontology/
 │   └── hetionet-schema.ttl        # TBox. OPTIONAL here (reasoning off; Ontop can run mapping-only).
@@ -57,8 +57,8 @@ virtual-knowledge-graph-connectivity/
 │   └── q08_smoke.rq                # rung 0  — SELECT * ... LIMIT 1 endpoint liveness
 │
 └── harness/
-    ├── run_query.py               # POST a .rq to an endpoint (ontop|oracle), return bindings as rows
-    ├── parity.py                  # diff Ontop vs oracle on the LABEL projection; report fidelity loss
+    ├── run_query.py               # POST a .rq to an endpoint (ontop|ground_truth), return bindings as rows
+    ├── parity.py                  # diff Ontop vs ground truth on the LABEL projection; report fidelity loss
     └── test_rungs.py              # pytest: one parametrized test per rung over its query set
 ```
 

@@ -1,5 +1,5 @@
 # --- Secrets / env ---
-# Real env lives in secrets/.env (dev creds, oracle/JDBC coords); only the template is tracked.
+# Real env lives in secrets/.env (dev creds, ground-truth/JDBC coords); only the template is tracked.
 secrets/.env
 secrets/*.local
 .env
@@ -23,7 +23,7 @@ htmlcov/
 
 # --- Fetched / generated data ---
 # hetionet TSVs and derived RDF land here; the ~469 MB hetionet.ttl must never enter history.
-# Exception: the 45 KB smoke ttl is a tracked reference oracle. Glob-then-negate is required
+# Exception: the 45 KB smoke ttl is a tracked reference snapshot. Glob-then-negate is required
 # because a plain `data/hetionet/` dir exclude blocks re-including any file beneath it.
 data/hetionet/**
 !data/hetionet/rdf/

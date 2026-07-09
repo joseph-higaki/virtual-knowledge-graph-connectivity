@@ -1,4 +1,4 @@
-"""Send a SPARQL query to an endpoint (ontop|oracle) and return rows + a small telemetry dict.
+"""Send a SPARQL query to an endpoint (ontop|ground_truth) and return rows + a small telemetry dict.
 
 Telemetry is a plain dict, not a framework (project scope): endpoint, url, http_status,
 elapsed_ms, row_count. Layer attribution (mapping-gap vs source-load-gap) is a parity-time
@@ -54,7 +54,7 @@ def _read_query(arg: str) -> str:
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(description="Run a SPARQL query against ontop|oracle.")
+    ap = argparse.ArgumentParser(description="Run a SPARQL query against ontop|ground_truth.")
     ap.add_argument("endpoint", choices=sorted(ENDPOINTS))
     ap.add_argument("query", help="path to a .rq file or an inline SPARQL string")
     args = ap.parse_args(argv)

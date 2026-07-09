@@ -6,7 +6,7 @@ operating contract. When in doubt, prefer fewer moving parts.
 
 A harness proving one hand-written SPARQL query resolves unchanged through
 **standalone Ontop → Trino → PostgreSQL + Apache Iceberg (on MinIO)**, with results validated
-against a **GraphDB oracle**. It is not a benchmark. There is no LLM and no reasoning.
+against a **GraphDB ground truth**. It is not a benchmark. There is no LLM and no reasoning.
 
 ## Hard constraints (do not violate)
 
@@ -16,7 +16,7 @@ against a **GraphDB oracle**. It is not a benchmark. There is no LLM and no reas
    flag it.
 2. **Standalone Ontop, not GraphDB-embedded Ontop.** Use the `ontop/ontop` container reading a
    `.obda` mapping + a `.properties` JDBC file. GraphDB appears in this repo **only as the
-   oracle** (an external SPARQL endpoint), never as Ontop's host.
+   ground truth** (an external SPARQL endpoint), never as Ontop's host.
 3. **Ontop binds to ONE SQL source per rung.** Rung 2 → Postgres directly. Rungs 3 and 4 → Trino
    only; Trino exposes the other stores as catalogs. Do not attempt to point one Ontop instance
    at two JDBC sources — that is Trino's job underneath.
@@ -31,7 +31,7 @@ against a **GraphDB oracle**. It is not a benchmark. There is no LLM and no reas
    Do not implement all 24 metaedges.
 7. **Parity is compared on the label projection, not on IRIs.** Ontop may mint any consistent
    IRI template. Do NOT try to reproduce Project-1's URI scheme. Compare the `?xLabel` columns,
-   sorted, modulo order. A rung passes iff Ontop's label bindings equal the oracle's.
+   sorted, modulo order. A rung passes iff Ontop's label bindings equal the ground truth's.
 8. **Local-first, cost-conscious.** Everything runs in `docker compose`. No cloud SaaS
    dependency (no real Snowflake/Databricks). No orchestration frameworks. Hand-rolled Python
    (`requests`/`SPARQLWrapper`, `psycopg`, `trino` python client, `pytest`). Python runs in a
@@ -63,7 +63,7 @@ constraints (cross-store joins are keyed on id strings, unenforced — this is i
   "SPARQL-only" idea — Ontop needs a source, so this is a smoke test, not a query test.
 - **Rung 2 — Ontop → Postgres.** Full Postgres slice (`gene`, `disease`, `edge_dag`). Map to
   `hetio:Gene`/`hetio:Disease`/`rdfs:label` and `?d hetio:associates ?g`. Run `q02`, `q05`;
-  parity vs oracle.
+  parity vs ground truth.
 - **Rung 3 — Ontop → Trino → Iceberg.** Bring up `minio` + Iceberg catalog + `trino`. Load
   `compound` into Iceberg via Trino DDL/INSERT. Point Ontop at **Trino** using the iceberg
   catalog only (`mappings/iceberg.obda`, tables like `iceberg.hetionet.compound`). Run `q01`,
@@ -87,9 +87,9 @@ Prefer the lightest catalog that works locally; record the choice in the README.
 
 ## Parity + telemetry
 
-- `harness/run_query.py`: send a `.rq` to a target endpoint (`ontop` | `oracle`), return rows.
+- `harness/run_query.py`: send a `.rq` to a target endpoint (`ontop` | `ground_truth`), return rows.
 - `harness/parity.py`: for each query, run against both endpoints, project to the label
-  column(s), sort, diff. Report per-query fidelity loss = `{in_oracle_not_ontop, in_ontop_not_oracle}`.
+  column(s), sort, diff. Report per-query fidelity loss = `{in_ground_truth_not_ontop, in_ontop_not_ground_truth}`.
 - On a miss, attribute the layer: **mapping gap** (Ontop returns fewer rows than the source has)
   vs **source-load gap** (the table itself is short). There is no LLM layer here, so those are
   the only two attributions. Keep this as a small dict on the result; do not build a telemetry
@@ -103,6 +103,6 @@ orchestration frameworks · any cloud SaaS backend.
 
 ## Definition of done for `v0.1.0`
 
-`make up-rung4 && make test-rung4` passes: all rung-4 queries return label-parity with the oracle,
+`make up-rung4 && make test-rung4` passes: all rung-4 queries return label-parity with the ground truth,
 at least two of them provably cross the Postgres↔Iceberg boundary in Trino (confirm via Trino's
 query plan / `EXPLAIN` that both catalogs are scanned), and rungs 0/2/3 remain runnable.

@@ -18,13 +18,13 @@ between rungs is caused by the **serving layer alone**. That is the entire point
 
 ## The invariant: parity, not improvement
 
-A rung is **correct iff it returns the same bindings as the GraphDB oracle**, compared on the
+A rung is **correct iff it returns the same bindings as the GraphDB ground truth**, compared on the
 **label projection** (the human-readable `?xLabel` columns), modulo ordering. Entity IRIs are
 *not* compared — Ontop mints its own IRI scheme here, and matching Project-1's exact
 URIs is a benchmark-integration concern, not a connectivity one.
 
 The only metric that legitimately moves between rungs is **virtualization fidelity loss** — rows
-the oracle returns that Ontop drops (a mapping gap, a type coercion, or a join-pushdown limit).
+the ground truth returns that Ontop drops (a mapping gap, a type coercion, or a join-pushdown limit).
 That is a data-quality number, reported as such. "Same results as GraphDB" is a PASS.
 
 ## Architecture
@@ -34,8 +34,8 @@ That is a data-quality number, reported as such. "Same results as GraphDB" is a 
                  │
                  ▼
         ┌──────────────────┐         ┌──────────────────────────┐
-        │  standalone Ontop│  ── vs ─│  GraphDB oracle (existing │
-        │  (system under   │  parity │  materialized RDFS ABox)  │
+        │  standalone Ontop│  ── vs ─│  GraphDB ground truth    │
+        │  (system under   │  parity │  (materialized RDFS ABox)│
         │   test)          │  on     └──────────────────────────┘
         └────────┬─────────┘  labels
                  │ SQL
@@ -154,9 +154,9 @@ flowchart TB
     edge_ctd -.->|"treats: cross-store join (Trino)"| disease
 ```
 
-## The oracle
+## The ground truth
 
-By default the harness points at your **existing Project-1 GraphDB** (`ORACLE_SPARQL_URL` in
+By default the harness points at your **existing Project-1 GraphDB** (`GROUND_TRUTH_SPARQL_URL` in
 `secrets/.env`, base `http://localhost:7200/`). Because that graph and the SQL tables come from different provenance paths, parity is
 compared on labels 
 For reference smoke (partial) and full ABOX RDF is data/hetionet/rdf 
@@ -178,7 +178,7 @@ make smoke       # same query, prints rows + telemetry dict
 make ui          # prints the Ontop console URL
 ```
 
-The SPARQL console is Ontop's built-in **YASGUI** at <http://localhost:8080/> — syntax
+The SPARQL console is Ontop's built-in **YASGUI** at <http://localhost:7300/> — syntax
 highlighting out of the box. Right-click the editor → **View SQL translation** to see the
 SPARQL→SQL rewrite Ontop pushes to the source. `make down` stops containers (keeps data);
 `make clean` also drops the `pgdata` volume (forces a re-seed on next `up`).

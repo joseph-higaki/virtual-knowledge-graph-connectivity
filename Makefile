@@ -38,7 +38,7 @@ smoke: venv              # run q08 against Ontop, print rows + telemetry
 	$(PY) -m harness.run_query ontop queries/q08_smoke.rq
 
 ui:                      # the SPARQL console is Ontop's built-in YASGUI
-	@echo "Ontop SPARQL console (YASGUI): http://localhost:$${ONTOP_HOST_PORT:-8080}/"
+	@set -a; . ./secrets/.env; set +a; echo "Ontop SPARQL console (YASGUI): http://localhost:$${ONTOP_HOST_PORT:-7300}/"
 	@echo "Type a query; right-click the editor -> 'View SQL translation' for the SPARQL->SQL rewrite."
 
 clean:                   # tear down and drop the pgdata volume (forces re-seed on next up)
