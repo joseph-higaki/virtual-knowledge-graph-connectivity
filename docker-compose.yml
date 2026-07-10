@@ -28,7 +28,10 @@ services:
 
   ontop:
     image: ontop/ontop:5.5.0
-    profiles: ["rung0"]
+    # rung 0 (gene smoke) and rung 2 (full PG slice) share this Ontop → same postgres.obda /
+    # postgres.properties over Postgres; rung 2 only adds the disease + associates mappings and the
+    # full load. rungs 3/4 repoint Ontop at Trino (added when those rungs are built).
+    profiles: ["rung0", "rung2"]
     depends_on:
       postgres:
         condition: service_healthy
@@ -39,6 +42,9 @@ services:
       ONTOP_DB_USER: ${POSTGRES_USER}
       ONTOP_DB_PASSWORD: ${POSTGRES_PASSWORD}
       ONTOP_CORS_ALLOWED_ORIGINS: "*"
+      # The 5.5.0 web UI (stock YASGUI) has no "View SQL" button. The SPARQL→SQL rewrite is only
+      # emitted to the container log at DEBUG. `ONTOP_LOG_LEVEL=DEBUG make up-rung2` then read logs.
+      ONTOP_LOG_LEVEL: ${ONTOP_LOG_LEVEL:-INFO}
       # Lazy init: the endpoint boots first and connects on the first query, so a mapping or
       # connection fault surfaces as a clear query-time error — exactly rung 0's smoke goal.
       ONTOP_LAZY_INIT: "true"

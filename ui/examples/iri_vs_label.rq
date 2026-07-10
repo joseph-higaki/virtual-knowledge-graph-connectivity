@@ -1,0 +1,15 @@
+# UI demo (not a rung query) — projects the gene IRI *and* its label so the Raw↔Labels toggle is
+# visible: in Raw, ?gene differs per engine (Ontop mints https://het.io/gene/… , GraphDB uses
+# https://identifiers.org/ncbigene/…) so the rows don't match; switch to Labels and the IRI column
+# is dropped, leaving ?geneLabel — which matches. This is exactly why parity compares labels (CLAUDE.md #7).
+PREFIX hetio: <https://het.io/schema/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?gene ?geneLabel WHERE {
+  ?disease a hetio:Disease ;
+           rdfs:label "restless legs syndrome" ;
+           hetio:associates ?gene .
+  ?gene a hetio:Gene ;
+        rdfs:label ?geneLabel .
+}
+ORDER BY ?geneLabel

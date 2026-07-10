@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Materialized vs Virtual — Hetionet VKG</title>
+<style>
+  :root {
+    --bg:#f6f7f9; --panel:#fff; --ink:#1a1d21; --muted:#6b7280; --line:#e3e6ea;
+    --virtual:#2563eb; --virtual-bg:#eff4ff; --material:#b45309; --material-bg:#fef6ec;
+    --ok:#15803d; --ok-bg:#eaf7ee; --bad:#b91c1c; --bad-bg:#fdecec; --code:#0f172a; --code-ink:#e2e8f0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#0f1115; --panel:#171a20; --ink:#e6e8eb; --muted:#9aa3af; --line:#2a2f38;
+      --virtual:#6ea8fe; --virtual-bg:#16233d; --material:#f0b45e; --material-bg:#312414;
+      --ok:#4ade80; --ok-bg:#14301f; --bad:#f87171; --bad-bg:#341717; --code:#0b0e14; --code-ink:#d5dae3;
+    }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+  .mono { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+  header { padding:18px 22px 6px; }
+  h1 { margin:0; font-size:18px; }
+  .sub { color:var(--muted); font-size:13px; margin-top:3px; }
+  main { padding:14px 22px 40px; max-width:1300px; }
+  .controls { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:10px; }
+  select, button { font:inherit; padding:7px 11px; border:1px solid var(--line);
+    border-radius:8px; background:var(--panel); color:var(--ink); cursor:pointer; }
+  button.run { background:var(--virtual); border-color:var(--virtual); color:#fff; font-weight:600; }
+  button:disabled { opacity:.55; cursor:default; }
+  .seg { display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+  .seg button { border:0; border-radius:0; background:var(--panel); }
+  .seg button.on { background:var(--virtual); color:#fff; }
+  textarea { width:100%; min-height:120px; padding:11px 12px; border:1px solid var(--line);
+    border-radius:10px; background:var(--panel); color:var(--ink); resize:vertical; }
+  .banner { margin:12px 0; padding:10px 14px; border-radius:10px; border:1px solid var(--line);
+    display:flex; gap:14px; align-items:center; flex-wrap:wrap; font-weight:600; }
+  .banner.ok { background:var(--ok-bg); border-color:var(--ok); color:var(--ok); }
+  .banner.bad { background:var(--bad-bg); border-color:var(--bad); color:var(--bad); }
+  .banner .note { font-weight:400; color:var(--muted); }
+  .timing { display:flex; flex-direction:column; gap:6px; margin:12px 0; }
+  .bar-row { display:grid; grid-template-columns:150px 1fr 80px; gap:10px; align-items:center; font-size:13px; }
+  .bar { height:16px; border-radius:5px; }
+  .bar.v { background:var(--virtual); } .bar.m { background:var(--material); }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:880px) { .grid { grid-template-columns:1fr; } }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  .card > .head { padding:10px 14px; border-bottom:1px solid var(--line); display:flex;
+    justify-content:space-between; align-items:baseline; gap:10px; }
+  .card.v > .head { background:var(--virtual-bg); }
+  .card.m > .head { background:var(--material-bg); }
+  .card .title { font-weight:700; }
+  .card.v .title { color:var(--virtual); } .card.m .title { color:var(--material); }
+  .tele { color:var(--muted); font-size:12.5px; }
+  .tblwrap { overflow:auto; max-height:420px; }
+  table { border-collapse:collapse; width:100%; font-size:13px; }
+  th, td { text-align:left; padding:6px 12px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  th { position:sticky; top:0; background:var(--panel); z-index:1; font-weight:600; }
+  td.rownum, th.rownum { color:var(--muted); text-align:right; width:1%; }
+  details { border-top:1px solid var(--line); }
+  summary { padding:9px 14px; cursor:pointer; color:var(--virtual); font-weight:600; user-select:none; }
+  pre.sql { margin:0; padding:12px 14px; background:var(--code); color:var(--code-ink);
+    overflow:auto; font-size:12.5px; line-height:1.5; }
+  .empty { padding:18px 14px; color:var(--muted); }
+  .err { background:var(--bad-bg); border:1px solid var(--bad); color:var(--bad);
+    padding:12px 14px; border-radius:10px; white-space:pre-wrap; }
+  .hint { color:var(--muted); font-size:12px; margin-left:auto; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Materialized vs Virtual — Hetionet VKG</h1>
+  <div class="sub">One SPARQL query, two engines: <b>Ontop → Postgres</b> (virtual / OBDA) vs
+    <b>GraphDB</b> (materialized ABox). Compared on the label projection; Ontop's pushed SQL shown below.</div>
+</header>
+<main>
+  <div class="controls">
+    <select id="picker" title="Preload a harness query"></select>
+    <button class="run" id="run">Run ▸</button>
+    <div class="seg" id="view" title="Compare on raw bindings or the label projection">
+      <button data-mode="labels" class="on">Labels</button>
+      <button data-mode="raw">Raw</button>
+    </div>
+    <span class="hint" id="hint">Labels view drops IRI columns (engines mint different IRIs).</span>
+  </div>
+  <textarea id="query" class="mono" spellcheck="false" placeholder="Write SPARQL, or pick a query above…"></textarea>
+
+  <div id="out"></div>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+let queries = [];       // [{name, text}]
+let last = null;        // last /api/run response
+let mode = "labels";    // "labels" | "raw"
+
+async function loadQueries() {
+  queries = await (await fetch("/api/queries")).json();
+  const pick = $("#picker");
+  pick.innerHTML = queries.map((q,i)=>`<option value="${i}">${q.name}</option>`).join("");
+  const def = queries.findIndex(q=>q.name.startsWith("q02"));
+  pick.value = def >= 0 ? def : 0;
+  $("#query").value = queries[pick.value]?.text || "";
+}
+
+$("#picker")?.addEventListener("change", e => { $("#query").value = queries[e.target.value]?.text || ""; });
+$("#view").addEventListener("click", e => {
+  const b = e.target.closest("button[data-mode]"); if (!b) return;
+  mode = b.dataset.mode;
+  document.querySelectorAll("#view button").forEach(x=>x.classList.toggle("on", x.dataset.mode===mode));
+  if (last && !last.error) render(last);
+});
+$("#run").addEventListener("click", run);
+
+async function run() {
+  const btn = $("#run"); btn.disabled = true; btn.textContent = "Running…";
+  $("#out").innerHTML = "";
+  try {
+    const r = await fetch("/api/run", {method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({query: $("#query").value})});
+    last = await r.json();
+    if (last.error) { $("#out").innerHTML = `<div class="err">${esc(last.error)}</div>`; }
+    else render(last);
+  } catch (e) {
+    $("#out").innerHTML = `<div class="err">request failed: ${esc(String(e))}\nIs the stack up? make up-rung2 && make load-postgres</div>`;
+  } finally { btn.disabled = false; btn.textContent = "Run ▸"; }
+}
+
+function esc(s){ return String(s??"").replace(/[&<>]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+
+function table(cols, rows) {
+  if (!rows.length) return `<div class="empty">0 rows</div>`;
+  const head = `<tr><th class="rownum">#</th>${cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr>`;
+  const body = rows.map((row,i)=>`<tr><td class="rownum">${i+1}</td>${
+    cols.map(c=>`<td class="mono">${esc(row[c])}</td>`).join("")}</tr>`).join("");
+  return `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
+}
+
+function tele(t){ return `HTTP ${t.http_status} · ${t.row_count} rows · ${t.elapsed_ms} ms`; }
+
+function render(res) {
+  const labels = mode === "labels";
+  const vCols = labels ? res.label.columns : res.ontop.columns;
+  const mCols = labels ? res.label.columns : res.ground_truth.columns;
+  const vRows = labels ? res.label.ontop_rows : res.ontop.rows;
+  const mRows = labels ? res.label.gt_rows   : res.ground_truth.rows;
+
+  const p = res.parity, loss = p.fidelity_loss;
+  const dropped = res.label.dropped_uri_columns;
+  const banner = p.pass
+    ? `<div class="banner ok">✓ PARITY — labels match
+         <span class="note">${p.counts.ontop} rows each${labels && dropped.length ? ` · dropped IRI col(s): ${dropped.join(", ")}` : ""}</span></div>`
+    : `<div class="banner bad">✗ MISMATCH
+         <span class="note">missing from virtual: ${loss.in_ground_truth_not_ontop.length} ·
+         only in virtual: ${loss.in_ontop_not_ground_truth.length} · layer: ${esc(p.layer)}</span></div>`;
+
+  const vt = res.ontop.telemetry.elapsed_ms, mt = res.ground_truth.telemetry.elapsed_ms;
+  const scale = Math.max(vt, mt, 1);
+  const timing = `<div class="timing">
+      <div class="bar-row"><span>Virtual (Ontop)</span><div class="bar v" style="width:${(vt/scale*100).toFixed(1)}%"></div><span>${vt} ms</span></div>
+      <div class="bar-row"><span>Materialized (GraphDB)</span><div class="bar m" style="width:${(mt/scale*100).toFixed(1)}%"></div><span>${mt} ms</span></div>
+    </div>`;
+
+  const virtualCard = `<div class="card v">
+      <div class="head"><span class="title">Virtual — Ontop → Postgres</span><span class="tele">${tele(res.ontop.telemetry)}</span></div>
+      <div class="tblwrap">${table(vCols, vRows)}</div>
+      <details open><summary>SQL translation (pushed to Postgres)</summary><pre class="sql mono">${esc(res.sql.sql)}</pre></details>
+    </div>`;
+  const materialCard = `<div class="card m">
+      <div class="head"><span class="title">Materialized — GraphDB ground truth</span><span class="tele">${tele(res.ground_truth.telemetry)}</span></div>
+      <div class="tblwrap">${table(mCols, mRows)}</div>
+    </div>`;
+
+  $("#out").innerHTML = banner + timing + `<div class="grid">${virtualCard}${materialCard}</div>`;
+}
+
+loadQueries();
+</script>
+</body>
+</html>

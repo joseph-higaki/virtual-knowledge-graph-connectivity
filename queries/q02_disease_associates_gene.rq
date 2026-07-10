@@ -1,0 +1,15 @@
+# rung 2 — Ontop -> Postgres (DaG, single source). Genes associated with one disease, bound by
+# disease LABEL not IRI, so it runs unchanged on Ontop and the GraphDB ground truth despite their
+# different IRI schemes. Projects only ?geneLabel — parity is compared on labels, never IRIs
+# (CLAUDE.md #7). Forces the gene ⋈ association ⋈ disease join inside Postgres.
+PREFIX hetio: <https://het.io/schema/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?geneLabel WHERE {
+  ?disease a hetio:Disease ;
+           rdfs:label "restless legs syndrome" ;
+           hetio:associates ?gene .
+  ?gene a hetio:Gene ;
+        rdfs:label ?geneLabel .
+}
+ORDER BY ?geneLabel

@@ -1,0 +1,8 @@
+# rung 2 — COUNT aggregate over the gene node table. All genes, no binding; projects only the
+# scalar ?n. Parity compares the count value: Ontop's row count of `gene` must equal the number of
+# hetio:Gene instances in the ground truth.
+PREFIX hetio: <https://het.io/schema/>
+
+SELECT (COUNT(?gene) AS ?n) WHERE {
+  ?gene a hetio:Gene .
+}

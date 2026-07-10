@@ -3,10 +3,11 @@ name = "vkg-connectivity"
 version = "0.1.0"
 description = "VKG/OBDA connectivity + fidelity harness (Ontop -> Trino -> Postgres/Iceberg) validated against a GraphDB ground truth"
 requires-python = ">=3.11"
-# Pinned in code, not prose. Rungs 2+ add psycopg, trino, SPARQLWrapper.
+# Pinned in code, not prose. Rung 2 adds psycopg (COPY into Postgres); rungs 3+ add trino.
 dependencies = [
     "requests==2.32.3",
     "python-dotenv==1.0.1",
+    "psycopg[binary]==3.2.3",
 ]
 
 [project.optional-dependencies]

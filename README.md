@@ -179,11 +179,52 @@ make ui          # prints the Ontop console URL
 ```
 
 The SPARQL console is Ontop's built-in **YASGUI** at <http://localhost:7300/> — syntax
-highlighting out of the box. Right-click the editor → **View SQL translation** to see the
-SPARQL→SQL rewrite Ontop pushes to the source. `make down` stops containers (keeps data);
-`make clean` also drops the `pgdata` volume (forces a re-seed on next `up`).
+highlighting out of the box. This 5.5.0 build's YASGUI has **no "View SQL" button**; the SPARQL→SQL
+rewrite is exposed at the HTTP endpoint `GET /ontop/reformulate?query=…` — use `make sql
+Q=<file.rq>` (or open the URL) to see the SQL Ontop pushes to the source. `make down` stops
+containers (keeps data); `make clean` also drops the `pgdata` volume (forces a re-seed on next `up`).
 
-Rungs 2–4: TBD.
+### Rung 2 — Ontop → Postgres (parity)
+
+The full Postgres slice — every `Gene` and `Disease` node plus every `Disease–associates–Gene`
+(DaG) edge — served directly from Postgres and checked for label parity against the ground truth.
+
+```
+make up-rung2       # Postgres + Ontop with the full postgres.obda mapping
+make load-postgres  # fetch TSVs → filter the slice → COPY gene/disease/gene_disease_association
+make test-rung2     # label parity for q02, q05 vs the GraphDB ground truth
+make parity         # same check, printed as a per-query diff + fidelity-loss dict
+```
+
+`make load-postgres` runs the `ingest/` pipeline: `fetch.py` pulls the Hetionet TSVs (the
+`edges.sif.gz` is Git-LFS-tracked, so it comes from the LFS media host, not `raw.`), `build_tables.py`
+filters to the slice's node kinds and metaedges (`DaG`/`CbG`/`CtD`, casing confirmed against
+`metaedges.tsv`), and `load_postgres.py` creates the schema and `COPY`s the three PG-resident tables.
+It **supersedes the rung-0 8-gene seed** — `TRUNCATE` + `COPY` replaces `gene` with all 20,945.
+
+The queries bind entities by **label, never by IRI** (`?d rdfs:label "restless legs syndrome"`),
+so a single `.rq` runs unchanged on Ontop and on GraphDB despite their different IRI schemes
+(`https://het.io/…` vs `ncbigene:`/`do:`), and each projects only its label/scalar columns —
+the parity comparison never sees an IRI. `q02` (12 genes) and `q05` (20,945 genes) both PASS.
+
+To watch the rewrite as you tune the mapping, `make sql Q=queries/q02_disease_associates_gene.rq`
+prints the pushed SQL (a single `disease ⋈ gene_disease_association ⋈ gene` join with the label as a
+`WHERE` predicate); `make sql Q=queries/q05_count_genes.rq` shows the `COUNT(*)` delegated straight
+to Postgres.
+
+**Compare UI** — `make ui-app` serves a local page at <http://localhost:7400/> that runs one query
+against both engines and shows them side by side: virtual (Ontop→Postgres) vs materialized (GraphDB),
+each endpoint's telemetry, a latency bar, the parity verdict, and Ontop's SQL translation. A
+**Raw ↔ Labels** toggle makes the invariant visible — in Raw the `?gene` IRI columns disagree
+(`het.io/gene/…` vs `identifiers.org/ncbigene/…`); in Labels those IRI columns are dropped and the
+rows match. It is a live tool (not a Claude Artifact — those can't call the endpoints), so the rung-2
+stack must be up. A tiny stdlib server (`ui/server.py`) proxies both endpoints server-side, reusing
+`run_query`/`parity`, so the browser stays same-origin (no CORS).
+
+> Editing a mapping while Ontop is running trips a WSL/9p stale bind-mount on `restart`; use
+> `make down && make up-rung2` (a container **recreate**) so the new `.obda` is re-mounted and parsed.
+
+Rungs 3–4: TBD.
 
 ## Explicitly out of scope (deferred, on purpose)
 

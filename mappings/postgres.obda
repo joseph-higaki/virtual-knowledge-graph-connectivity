@@ -7,4 +7,12 @@ xsd:		http://www.w3.org/2001/XMLSchema#
 mappingId	gene
 target		<https://het.io/gene/{id}> a hetio:Gene ; rdfs:label {name}^^xsd:string .
 source		SELECT id, name FROM gene
+
+mappingId	disease
+target		<https://het.io/disease/{id}> a hetio:Disease ; rdfs:label {name}^^xsd:string .
+source		SELECT id, name FROM disease
+
+mappingId	disease_associates_gene
+target		<https://het.io/disease/{source_id}> hetio:associates <https://het.io/gene/{target_id}> .
+source		SELECT source_id, target_id FROM gene_disease_association
 ]]
