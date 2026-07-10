@@ -1,0 +1,17 @@
+# rung 4 — Ontop -> Trino -> (Postgres + Iceberg). Two-hop crossing the boundary TWICE: diseases
+# treated by compounds that bind gene AGTR1. Path: gene(Postgres) <-binds- compound(Iceberg)
+# -treats-> disease(Postgres). The compound + both edges live in iceberg.hetionet; the anchor gene
+# and the result diseases live in postgresql.public — Trino federates PG -> Iceberg -> PG. Projected
+# by LABEL only (CLAUDE.md #7); no DISTINCT — both endpoints return the same multiset.
+PREFIX hetio: <https://het.io/schema/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?diseaseLabel WHERE {
+  ?gene a hetio:Gene ;
+        rdfs:label "AGTR1" .
+  ?compound hetio:binds ?gene ;
+            hetio:treats ?disease .
+  ?disease a hetio:Disease ;
+           rdfs:label ?diseaseLabel .
+}
+ORDER BY ?diseaseLabel

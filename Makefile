@@ -9,7 +9,8 @@ TRINO_DRIVER := ontop/jdbc/trino-jdbc-478.jar   # matches trinodb/trino:478 in d
 
 .PHONY: venv deps up-rung0 down ps logs test-rung0 smoke ui sql clean \
         fetch tables load-postgres up-rung2 test-rung2 parity parity-detail ui-app \
-        up-rung3 load-iceberg test-rung3 parity-rung3
+        up-rung3 load-iceberg test-rung3 parity-rung3 \
+        up-rung4 test-rung4 parity-rung4 explain-rung4
 
 venv:
 	test -d .venv || python3 -m venv .venv
@@ -71,7 +72,7 @@ parity-detail: venv      # same, but side-by-side rows + per-endpoint telemetry
 up-rung3: $(TRINO_DRIVER)   # minio + nessie + trino + Ontop(->Trino); blocks until Trino is healthy
 	$(COMPOSE) --profile rung3 up -d
 
-load-iceberg: tables       # create iceberg.hetionet schema + compound table via Trino, INSERT slice
+load-iceberg: tables       # create iceberg.hetionet schema + compound & both compound edges via Trino, INSERT slice
 	$(PY) -m ingest.load_iceberg
 
 test-rung3: venv           # label parity for q01/q06 vs the GraphDB ground truth (stack up + loaded)
@@ -79,6 +80,20 @@ test-rung3: venv           # label parity for q01/q06 vs the GraphDB ground trut
 
 parity-rung3: venv         # per-query Ontop-vs-ground-truth diff (q01, q06); add --detail by hand
 	$(PY) -m harness.parity q01 q06
+
+# --- rung 4: Ontop -> Trino -> (Postgres + Iceberg) polyglot federation, parity + cross-catalog proof
+# Load BOTH sources after up: `make load-postgres load-iceberg`. Shares Ontop's :7300 — `make down` first.
+up-rung4: $(TRINO_DRIVER) $(PG_DRIVER)   # postgres + minio + nessie + trino(+postgresql catalog) + Ontop(polyglot)
+	$(COMPOSE) --profile rung4 up -d
+
+test-rung4: venv           # label parity for q03/q04/q07 vs the GraphDB ground truth (stack up + loaded)
+	$(PY) -m pytest -m rung4 -q
+
+parity-rung4: venv         # per-query Ontop-vs-ground-truth diff (q03, q04, q07); add --detail by hand
+	$(PY) -m harness.parity q03 q04 q07
+
+explain-rung4: venv        # DoD: prove q03/q04/q07 scan BOTH Trino catalogs (EXPLAIN Ontop's rewritten SQL)
+	$(PY) -m harness.explain q03 q04 q07
 
 UI_HOST_PORT ?= 7400
 ui-app: venv             # local compare UI: virtual vs materialized + SQL translation (needs stack up)

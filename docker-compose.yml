@@ -113,10 +113,15 @@ services:
       createbuckets:
         condition: service_completed_successfully
     environment:
-      # Consumed by ${ENV:...} substitution in trino/catalog/iceberg.properties (keeps the S3 secret
-      # out of that tracked file). ${VAR:?} aborts `up` if unset.
+      # Consumed by ${ENV:...} substitution in trino/catalog/*.properties (keeps secrets out of those
+      # tracked files). AWS -> iceberg.properties (S3); POSTGRES -> postgresql.properties (rung 4).
+      # ${VAR:?} aborts `up` if unset; the POSTGRES trio is plain so a rung-3 up (Postgres absent)
+      # still starts — its postgresql catalog just registers and connects lazily, never at rung 3.
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:?set AWS_ACCESS_KEY_ID in secrets/.env}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:?set AWS_SECRET_ACCESS_KEY in secrets/.env}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "${TRINO_HOST_PORT:-8081}:8080"
     volumes:
@@ -152,6 +157,31 @@ services:
       - ./mappings/iceberg.obda:/opt/ontop/input/iceberg.obda:ro
       - ./ontop/trino.properties:/opt/ontop/input/trino.properties:ro
       # Same jdbc dir as rung 0/2: now holds BOTH the postgres and trino JDBC jars; Ontop loads all.
+      - ./ontop/jdbc:/opt/ontop/jdbc:ro
+
+  # rung 4: third standalone Ontop, polyglot.obda over Trino's BOTH catalogs (postgresql + iceberg).
+  # Same :7300 as the rung 0/2/3 Ontops — only one rung's profile is active at a time. Also gates on
+  # Postgres healthy: Trino connects to it lazily on the first cross-catalog query, so it must be up.
+  ontop-polyglot:
+    image: ontop/ontop:5.5.0
+    profiles: ["rung4"]
+    depends_on:
+      trino:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      ONTOP_MAPPING_FILE: /opt/ontop/input/polyglot.obda
+      ONTOP_PROPERTIES_FILE: /opt/ontop/input/trino.properties
+      ONTOP_CORS_ALLOWED_ORIGINS: "*"
+      ONTOP_LOG_LEVEL: ${ONTOP_LOG_LEVEL:-INFO}
+      ONTOP_LAZY_INIT: "true"
+      ONTOP_DEV_MODE: "true"
+    ports:
+      - "${ONTOP_HOST_PORT:-7300}:8080"
+    volumes:
+      - ./mappings/polyglot.obda:/opt/ontop/input/polyglot.obda:ro
+      - ./ontop/trino.properties:/opt/ontop/input/trino.properties:ro
       - ./ontop/jdbc:/opt/ontop/jdbc:ro
 
 volumes:

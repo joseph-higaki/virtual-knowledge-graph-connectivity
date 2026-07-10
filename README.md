@@ -264,7 +264,42 @@ substitution from `secrets/.env`), so no secret sits in a tracked file.
 > drops the catalog pointers (the data stays in MinIO); just re-run `make load-iceberg` — that is the
 > rung's normal `up → load` flow, and the loader's `DROP TABLE IF EXISTS` makes it idempotent.
 
-Rung 4: TBD.
+### Rung 4 — Ontop → Trino → (Postgres + Iceberg) polyglot federation
+
+The payoff. **One** Ontop (`polyglot.obda`) speaks to **one** Trino, which now exposes **two**
+catalogs: `postgresql` (`gene`, `disease`, `gene_disease_association`) and `iceberg` (`compound` +
+both compound edges). A single hand-written SPARQL query resolves across both stores — and **Trino,
+not Ontop, does the join**.
+
+```
+make down          # free :7300 and switch profiles
+make up-rung4      # postgres + minio + nessie + trino(+postgresql catalog) + Ontop(polyglot)
+make load-postgres # COPY gene/disease/gene_disease_association into Postgres
+make load-iceberg  # INSERT compound + both compound edges into iceberg.hetionet via Trino
+make test-rung4    # label parity for q03/q04/q07 vs the GraphDB ground truth
+make parity-rung4  # same, printed as the per-query diff + fidelity-loss dict
+make explain-rung4 # DoD proof: q03/q04/q07 scan BOTH catalogs (EXPLAIN Ontop's rewritten SQL)
+```
+
+`q03` (compounds binding gene **AGTR1** → the 11 "-sartan" ARBs), `q04` (compounds treating
+**Alzheimer's disease** → Donepezil/Galantamine/Memantine/Rivastigmine), and `q07` (two-hop: diseases
+treated by AGTR1's binders → hypertension/coronary-artery-disease/type-2-diabetes) all PASS. Each
+forces the boundary — the compound node + edge live in `iceberg.hetionet`, the anchor/result gene &
+disease in `postgresql.public`. `make explain-rung4` confirms via Trino's `EXPLAIN (TYPE IO)` that all
+**three** scan both catalogs (DoD needs ≥2). Cross-catalog predicates: `hetio:binds` (CbG),
+`hetio:treats` (CtD) — the exact ground-truth verbs (`git grep` the discovery in the journal).
+
+> **Load ordering matters.** Ontop validates every mapping source query against live DB metadata on
+> the first SPARQL request (lazy init), so all six relations must exist **before** you query — run
+> both loaders after `make up-rung4`. Querying too early fails with `Cannot find relation
+> iceberg.hetionet.compound`; just load, then `make down && make up-rung4` (or restart the
+> `ontop-polyglot` container) for a clean init.
+
+> **One catalog dir, additive files.** `trino/catalog/` holds both `iceberg.properties` (rung 3+) and
+> `postgresql.properties` (rung 4). Postgres creds reach Trino via `${ENV:…}` from the trino service's
+> env (`secrets/.env`), never a tracked file. The postgresql catalog only *registers* at startup and
+> connects lazily, so **a rung-3 run boots green with Postgres down** (verified) — the earlier rungs
+> stay runnable.
 
 ## Explicitly out of scope (deferred, on purpose)
 
