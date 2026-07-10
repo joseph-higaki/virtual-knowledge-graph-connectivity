@@ -1,7 +1,6 @@
-# rung 4 — Ontop -> Trino -> (Postgres + Iceberg). Compounds that bind gene AGTR1. Forces a
-# cross-catalog join: the compound node + binding edge live in iceberg.hetionet (MinIO), the anchor
-# gene in postgresql.public — Trino federates them. Anchored + projected by LABEL only (parity on
-# labels, never IRIs — CLAUDE.md #7).
+# Compounds that bind gene AGTR1, anchored + projected by LABEL only — parity on labels, never IRIs
+# (CLAUDE.md #7). Spans two relational sources (a cross-store join): the compound node + binding edge
+# on one, the anchor gene on the other — federated underneath.
 PREFIX hetio: <https://het.io/schema/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 

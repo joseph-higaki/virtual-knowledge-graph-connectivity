@@ -1,6 +1,6 @@
-# rung 3 — Ontop -> Trino -> Iceberg. Every compound, projected by LABEL only (parity on labels,
-# never IRIs — CLAUDE.md #7). Single Iceberg source: the compound node table, read by Trino's
-# iceberg catalog from MinIO. ORDER BY lines the side-by-side diff up (parity itself is modulo order).
+# Every compound, projected by LABEL only — parity is compared on labels, never IRIs (Ontop and the
+# ground truth mint different IRI schemes; CLAUDE.md #7). Resolves against a single relational source.
+# ORDER BY lines the side-by-side diff up (parity itself is modulo order).
 PREFIX hetio: <https://het.io/schema/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 

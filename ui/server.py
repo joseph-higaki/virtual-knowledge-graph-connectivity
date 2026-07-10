@@ -1,4 +1,4 @@
-"""Local live compare UI: virtual (Ontop→Postgres) vs materialized (GraphDB) for one SPARQL query.
+"""Local live compare UI: virtual (Ontop→Trino, federating Postgres + Iceberg) vs materialized (GraphDB) for one SPARQL query.
 
 NOT a Claude Artifact — those run under a CSP that blocks all network calls, so they can't query a
 live endpoint. This is a tiny stdlib http.server that (a) serves index.html and (b) proxies one query
@@ -9,7 +9,8 @@ The label projection (for the raw↔labels toggle and the parity verdict) drops 
 bindings are IRIs in either endpoint: Ontop and GraphDB mint different IRI schemes, so only the
 literal/label columns are comparable (CLAUDE.md #7).
 
-Run: `make ui-app` (needs the rung-2 stack up + loaded). Port via UI_HOST_PORT (default 7400).
+Run: `make ui-app` (needs an Ontop + GraphDB stack up + loaded — e.g. `make up-rung4` + both loaders).
+Port via UI_HOST_PORT (default 7400). Endpoint-agnostic: it hits whatever Ontop is on :7300.
 """
 from __future__ import annotations
 

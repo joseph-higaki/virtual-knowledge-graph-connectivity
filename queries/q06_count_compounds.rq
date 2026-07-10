@@ -1,6 +1,6 @@
-# rung 3 — COUNT over the Iceberg compound node table. Projects only the scalar ?n; parity compares
-# the count value. Ontop's row count of iceberg.hetionet.compound must equal the hetio:Compound
-# instance count in the ground truth. Trino delegates the COUNT down to the Iceberg scan.
+# COUNT over the compound node table. Projects only the scalar ?n; parity compares the count value:
+# Ontop's compound count must equal the hetio:Compound instance count in the ground truth. Single
+# relational source; the engine delegates the COUNT down to the scan.
 PREFIX hetio: <https://het.io/schema/>
 
 SELECT (COUNT(?compound) AS ?n) WHERE {

@@ -46,7 +46,7 @@ virtual-knowledge-graph-connectivity/
 │       ├── postgresql.properties  # Trino postgresql connector -> Postgres  (rung 4)
 │       └── iceberg.properties     # Trino iceberg connector -> Nessie catalog + MinIO/S3  (rung 3, chosen: Nessie)
 │
-├── queries/                        # hand-written SPARQL. NO generator. Each tagged with its rung.
+├── queries/                        # hand-written SPARQL. NO generator. Query files are topology-agnostic; the rung each exercises is mapped here + in the pytest markers.
 │   ├── q01_list_compounds.rq       # rung 3  — single Iceberg source
 │   ├── q02_disease_associates_gene.rq   # rung 2  — single Postgres source
 │   ├── q03_compound_binds_gene.rq  # rung 4  — cross-store (compound+edge@Iceberg ⋈ gene@Postgres)

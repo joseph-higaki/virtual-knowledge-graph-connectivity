@@ -72,7 +72,7 @@
 <body>
 <header>
   <h1>Materialized vs Virtual — Hetionet VKG</h1>
-  <div class="sub">One SPARQL query, two engines: <b>Ontop → Postgres</b> (virtual / OBDA) vs
+  <div class="sub">One SPARQL query, two engines: <b>Ontop → Trino</b> (virtual VKG, federating Postgres + Iceberg) vs
     <b>GraphDB</b> (materialized ABox). Compared on the label projection; Ontop's pushed SQL shown below.</div>
 </header>
 <main>
@@ -124,7 +124,7 @@ async function run() {
     if (last.error) { $("#out").innerHTML = `<div class="err">${esc(last.error)}</div>`; }
     else render(last);
   } catch (e) {
-    $("#out").innerHTML = `<div class="err">request failed: ${esc(String(e))}\nIs the stack up? make up-rung2 && make load-postgres</div>`;
+    $("#out").innerHTML = `<div class="err">request failed: ${esc(String(e))}\nIs the stack up + loaded? make up-rung4 && make load-postgres load-iceberg</div>`;
   } finally { btn.disabled = false; btn.textContent = "Run ▸"; }
 }
 
@@ -164,9 +164,9 @@ function render(res) {
     </div>`;
 
   const virtualCard = `<div class="card v">
-      <div class="head"><span class="title">Virtual — Ontop → Postgres</span><span class="tele">${tele(res.ontop.telemetry)}</span></div>
+      <div class="head"><span class="title">Virtual — Ontop → Trino</span><span class="tele">${tele(res.ontop.telemetry)}</span></div>
       <div class="tblwrap">${table(vCols, vRows)}</div>
-      <details open><summary>SQL translation (pushed to Postgres)</summary><pre class="sql mono">${esc(res.sql.sql)}</pre></details>
+      <details open><summary>SQL translation (Ontop → Trino)</summary><pre class="sql mono">${esc(res.sql.sql)}</pre></details>
     </div>`;
   const materialCard = `<div class="card m">
       <div class="head"><span class="title">Materialized — GraphDB ground truth</span><span class="tele">${tele(res.ground_truth.telemetry)}</span></div>
