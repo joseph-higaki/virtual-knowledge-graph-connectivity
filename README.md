@@ -65,8 +65,10 @@ and edge **attributes** (chromosome, inchikey, description, url) are absent from
 live only in the full JSON and are **out of scope** here.
 
 This repo loads a representative **slice**: nodes `{Gene, Disease, Compound}`, edges
-`{Disease–associates–Gene, Compound–binds–Gene, Compound–treats–Disease}`, distributed so that at
-least one edge on each store forces a cross-store join. See `STRUCTURE.md` for the table layout.
+`{Disease–associates–Gene, Compound–binds–Gene, Compound–treats–Disease}`, split so `compound` and
+both compound edges live in Iceberg while `gene`/`disease`/`gene_disease_association` live in
+Postgres — the two compound edges each force a Postgres↔Iceberg join. See `STRUCTURE.md` for the
+table layout.
 
 ## Relational model (ERD)
 
@@ -92,22 +94,16 @@ erDiagram
         text name
     }
     GENE_DISEASE_ASSOCIATION {
-        text source_id FK "-> disease.id"
-        text target_id FK "-> gene.id"
-    }
-    COMPOUND_GENE_BINDING {
-        text source_id FK "-> compound.id (in Iceberg)"
-        text target_id FK "-> gene.id"
-    }
-    COMPOUND {
-        text id "resides in Iceberg"
+        text disease_id FK "-> disease.id"
+        text gene_id FK "-> gene.id"
     }
 
-    DISEASE  ||--o{ GENE_DISEASE_ASSOCIATION : "associates (source)"
-    GENE     ||--o{ GENE_DISEASE_ASSOCIATION : "target"
-    GENE     ||--o{ COMPOUND_GENE_BINDING : "binds (target)"
-    COMPOUND ||..o{ COMPOUND_GENE_BINDING : "source: cross-store, unenforced"
+    DISEASE ||--o{ GENE_DISEASE_ASSOCIATION : "associates (disease_id)"
+    GENE    ||--o{ GENE_DISEASE_ASSOCIATION : "gene_id"
 ```
+
+`gene_disease_association` is fully internal to Postgres (both FKs resolve here). `gene` and `disease`
+are also the *targets* of the two Iceberg-side compound edges — those dashes appear in the Iceberg ERD.
 
 ### Iceberg (on MinIO)
 
@@ -117,16 +113,25 @@ erDiagram
         text id "no key enforcement"
         text name
     }
+    COMPOUND_GENE_BINDING {
+        text compound_id "-> compound.id"
+        text gene_id "-> gene.id (in Postgres)"
+    }
     COMPOUND_DISEASE_TREATMENT {
-        text source_id "-> compound.id"
-        text target_id "-> disease.id (in Postgres)"
+        text compound_id "-> compound.id"
+        text disease_id "-> disease.id (in Postgres)"
+    }
+    GENE {
+        text id "resides in Postgres"
     }
     DISEASE {
         text id "resides in Postgres"
     }
 
-    COMPOUND ||--o{ COMPOUND_DISEASE_TREATMENT : "treats (source)"
-    DISEASE  ||..o{ COMPOUND_DISEASE_TREATMENT : "target: cross-store, unenforced"
+    COMPOUND ||--o{ COMPOUND_GENE_BINDING : "binds (compound_id)"
+    GENE     ||..o{ COMPOUND_GENE_BINDING : "gene_id: cross-store, unenforced"
+    COMPOUND ||--o{ COMPOUND_DISEASE_TREATMENT : "treats (compound_id)"
+    DISEASE  ||..o{ COMPOUND_DISEASE_TREATMENT : "disease_id: cross-store, unenforced"
 ```
 
 ### Combined — where federation happens
@@ -140,16 +145,16 @@ flowchart TB
         gene[("gene")]
         disease[("disease")]
         gene_disease_association[/"gene_disease_association"/]
-        compound_gene_binding[/"compound_gene_binding"/]
     end
     subgraph ICE["Iceberg (MinIO)"]
         compound[("compound")]
+        compound_gene_binding[/"compound_gene_binding"/]
         compound_disease_treatment[/"compound_disease_treatment"/]
     end
 
     disease -->|associates| gene_disease_association --> gene
-    compound_gene_binding -->|binds| gene
-    compound -.->|"binds: cross-store join (Trino)"| compound_gene_binding
+    compound -->|binds| compound_gene_binding
+    compound_gene_binding -.->|"binds: cross-store join (Trino)"| gene
     compound -->|treats| compound_disease_treatment
     compound_disease_treatment -.->|"treats: cross-store join (Trino)"| disease
 ```

@@ -1,10 +1,12 @@
 """Create the rung-2 Postgres schema and COPY the slice CSVs into it (CLAUDE.md rung 2).
 
-Loads the PG-resident slice tables only: gene, disease, gene_disease_association. (compound_gene_binding
-is a Postgres table too but belongs to rung 4; compound / compound_disease_treatment live in Iceberg —
-loaded by load_iceberg.py.) Idempotent: CREATE IF NOT EXISTS + TRUNCATE + COPY, so re-running fully
-replaces contents and supersedes the rung-0 8-gene initdb seed. No FK constraints — cross-store joins
-are keyed on unenforced id strings by design (CLAUDE.md store layout).
+Loads the full PG-resident slice: gene, disease, gene_disease_association. The compound entity and
+BOTH compound edges (compound_gene_binding, compound_disease_treatment) live in Iceberg — loaded by
+load_iceberg.py — so Postgres holds no compound-side table. Idempotent full replace: DROP + CREATE +
+COPY each run (like load_iceberg), so re-running rebuilds schema *and* data and supersedes the rung-0
+8-gene initdb seed. DROP (not TRUNCATE) is deliberate — it lets a column/schema change land on a
+pre-existing pgdata volume; TRUNCATE would keep the stale columns and break COPY. No FK constraints —
+cross-store joins are keyed on unenforced id strings by design (CLAUDE.md store layout).
 
 Connects host-side (localhost:${POSTGRES_HOST_PORT}); credentials come from secrets/.env via
 require_env (same fail-loud primitive as the SPARQL config).
@@ -20,13 +22,15 @@ from harness.config import require_env
 from ingest.build_tables import OUT_DIR
 
 _NODE_COLDEF = sql.SQL("(id TEXT PRIMARY KEY, name TEXT NOT NULL)")
-_ASSOC_COLDEF = sql.SQL("(source_id TEXT NOT NULL, target_id TEXT NOT NULL)")
+# gene_disease_association is the only PG-resident edge; its columns follow the DaG direction
+# (Disease -> Gene). The compound edges are Iceberg-side (see load_iceberg.py).
+_GDA_COLDEF = sql.SQL("(disease_id TEXT NOT NULL, gene_id TEXT NOT NULL)")
 
-# rung-2 PG tables: (table, column-definition, copy-columns). Order-independent (no FKs).
+# PG tables: (table, column-definition, copy-columns). Order-independent (no FKs).
 TABLES = [
     ("gene", _NODE_COLDEF, ("id", "name")),
     ("disease", _NODE_COLDEF, ("id", "name")),
-    ("gene_disease_association", _ASSOC_COLDEF, ("source_id", "target_id")),
+    ("gene_disease_association", _GDA_COLDEF, ("disease_id", "gene_id")),
 ]
 
 
@@ -49,8 +53,10 @@ def load(tables=TABLES) -> dict[str, int]:
             if not csv_path.exists():
                 raise FileNotFoundError(f"{csv_path} missing — run `python -m ingest.build_tables` first")
             ident = sql.Identifier(table)
-            cur.execute(sql.SQL("CREATE TABLE IF NOT EXISTS {} {}").format(ident, coldef))
-            cur.execute(sql.SQL("TRUNCATE {}").format(ident))
+            # DROP + CREATE = true full replace: schema drift (e.g. a column rename) lands even on a
+            # pre-existing volume, where CREATE IF NOT EXISTS would silently keep the old columns.
+            cur.execute(sql.SQL("DROP TABLE IF EXISTS {}").format(ident))
+            cur.execute(sql.SQL("CREATE TABLE {} {}").format(ident, coldef))
             copy_sql = sql.SQL("COPY {} ({}) FROM STDIN WITH (FORMAT CSV, HEADER true)").format(
                 ident, sql.SQL(", ").join(map(sql.Identifier, cols))
             )

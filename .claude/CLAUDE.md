@@ -49,12 +49,18 @@ against a **GraphDB ground truth**. It is not a benchmark. There is no LLM and n
 | `disease`                    | Postgres        | nodes.tsv kind=Disease     |
 | `compound`                   | Iceberg/MinIO   | nodes.tsv kind=Compound    |
 | `gene_disease_association`   | Postgres        | edges.sif metaedge=DaG     |
-| `compound_gene_binding`      | Postgres        | edges.sif metaedge=CbG     |
+| `compound_gene_binding`      | Iceberg/MinIO   | edges.sif metaedge=CbG     |
 | `compound_disease_treatment` | Iceberg/MinIO   | edges.sif metaedge=CtD     |
 
-The edge tables use associative-noun names (junction tables), not graph-topology names. Node
-tables: `(id TEXT, name TEXT)`. Association tables: `(source_id TEXT, target_id TEXT)`. No FK
-constraints (cross-store joins are keyed on id strings, unenforced — this is intentional).
+The compound entity and both compound edges live in Iceberg together (provenance-coherent: a "drug
+lake"); Postgres holds gene/disease and their single-store `gene_disease_association`. Both compound
+edges therefore straddle the boundary — that is where rung 4's cross-catalog joins come from.
+
+The edge tables use associative-noun names (junction tables), not graph-topology names. Node tables:
+`(id TEXT, name TEXT)`. Association tables carry entity-semantic id columns following the edge's own
+direction (source=subject), all TEXT: `gene_disease_association (disease_id, gene_id)`,
+`compound_gene_binding (compound_id, gene_id)`, `compound_disease_treatment (compound_id, disease_id)`.
+No FK constraints (cross-store joins are keyed on id strings, unenforced — this is intentional).
 
 ## Rung build order
 
@@ -70,9 +76,11 @@ constraints (cross-store joins are keyed on id strings, unenforced — this is i
   catalog only (`mappings/iceberg.obda`, tables like `iceberg.hetionet.compound`). Run `q01`,
   `q06`; parity.
 - **Rung 4 — Ontop → Trino → (Postgres + Iceberg).** Trino now exposes both `postgresql` and
-  `iceberg` catalogs; load `compound_gene_binding` (PG) and `compound_disease_treatment` (Iceberg). Use `mappings/polyglot.obda`
-  addressing `postgresql.public.*` and `iceberg.hetionet.*`. Run `q03`, `q04`, `q07` — each must
-  force a cross-catalog join. Parity, then tag `v0.1.0`.
+  `iceberg` catalogs; load both compound edges (`compound_gene_binding`, `compound_disease_treatment`)
+  into Iceberg beside `compound`. Use `mappings/polyglot.obda` addressing `postgresql.public.*`
+  (gene, disease, gene_disease_association) and `iceberg.hetionet.*` (compound + both edges). Run
+  `q03`, `q04`, `q07` — each must force a cross-catalog join (a compound edge in Iceberg joined to
+  gene/disease in Postgres). Parity, then tag `v0.1.0`.
 
 Note that the SQL identifiers in the mappings change across rungs (bare `gene` at rung 2 vs
 `postgresql.public.gene` at rung 4). That is expected and part of what the rungs demonstrate.

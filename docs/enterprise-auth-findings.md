@@ -60,7 +60,7 @@ Notes on topology not shown as rows:
   authentication: it only becomes *per-user* once identity propagation (B) works. Object storage
   can gate whole tables/prefixes but never rows/columns — so the polyglot rungs' only place for
   uniform row/column FGAC across Postgres + Iceberg is the **Trino** engine (file-based rules, OPA,
-  or Ranger). Enforcing there also means a masked/filtered **join key** (`source_id`/`target_id`)
+  or Ranger). Enforcing there also means a masked/filtered **join key** (e.g. `compound_id`/`gene_id`)
   would silently drop cross-store joins — target policy at label/attribute columns, not join keys.
 - **Defense-in-depth vs. bypass.** A policy only at the gateway/Ontop layer is bypassable by anyone
   who can reach Trino or Postgres directly. The lower the enforcement, the harder to bypass but the

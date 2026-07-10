@@ -24,8 +24,8 @@ virtual-knowledge-graph-connectivity/
 ├── ingest/
 │   ├── fetch.py                    # download the three files above from hetio/hetionet
 │   ├── build_tables.py            # TSV -> per-type node CSVs + per-metaedge edge CSVs (SLICE ONLY)
-│   ├── load_postgres.py           # DDL + COPY: gene, disease, gene_disease_association, compound_gene_binding
-│   ├── load_iceberg.py            # Trino DDL + INSERT: compound, compound_disease_treatment  (Iceberg catalog on MinIO)
+│   ├── load_postgres.py           # DDL + COPY: gene, disease, gene_disease_association
+│   ├── load_iceberg.py            # Trino DDL + INSERT: compound, compound_gene_binding, compound_disease_treatment  (Iceberg catalog on MinIO)
 │   └── build_rdf.py               # OPTIONAL: TSV -> hetionet.ttl for a clean-provenance local ground truth
 │
 ├── ontology/
@@ -49,8 +49,8 @@ virtual-knowledge-graph-connectivity/
 ├── queries/                        # hand-written SPARQL. NO generator. Each tagged with its rung.
 │   ├── q01_list_compounds.rq       # rung 3  — single Iceberg source
 │   ├── q02_disease_associates_gene.rq   # rung 2  — single Postgres source
-│   ├── q03_compound_binds_gene.rq  # rung 4  — cross-store (compound@Iceberg ⋈ edge+gene@Postgres)
-│   ├── q04_compound_treats_disease.rq   # rung 4  — cross-store (edge+compound@Iceberg ⋈ disease@Postgres)
+│   ├── q03_compound_binds_gene.rq  # rung 4  — cross-store (compound+edge@Iceberg ⋈ gene@Postgres)
+│   ├── q04_compound_treats_disease.rq   # rung 4  — cross-store (compound+edge@Iceberg ⋈ disease@Postgres)
 │   ├── q05_count_genes.rq          # rung 2  — COUNT aggregate
 │   ├── q06_count_compounds.rq      # rung 3  — COUNT over Iceberg
 │   ├── q07_gene_two_hop.rq         # rung 4  — 2-hop crossing the boundary twice
@@ -72,11 +72,15 @@ take qyeries / questions as indicative. Use same rationale to test different run
 | `disease`                    | Postgres          | nodes.tsv where kind=Disease         | node                         |
 | `compound`                   | Iceberg (MinIO)   | nodes.tsv where kind=Compound        | node                         |
 | `gene_disease_association`   | Postgres          | edges.sif where metaedge=DaG         | single-store edge (rung 2)   |
-| `compound_gene_binding`      | Postgres          | edges.sif where metaedge=CbG         | cross-store edge, PG-side    |
+| `compound_gene_binding`      | Iceberg (MinIO)   | edges.sif where metaedge=CbG         | cross-store edge, lake-side  |
 | `compound_disease_treatment` | Iceberg (MinIO)   | edges.sif where metaedge=CtD         | cross-store edge, lake-side  |
 
+Both compound edges sit in Iceberg with `compound`, so each crosses to gene/disease in Postgres —
+that is the rung-4 federation. `gene_disease_association` stays single-store (Postgres).
+
 Edge tables are named as relational junction/association tables (`<pair>_<relationship-noun>`),
-not by their Hetionet metaedge abbreviation.
+not by their Hetionet metaedge abbreviation. Association columns are entity-semantic and follow the
+edge's own direction: `(disease_id, gene_id)`, `(compound_id, gene_id)`, `(compound_id, disease_id)`.
 
 Metaedge abbreviations (`DaG`, `CbG`, `CtD`) must be confirmed against `metaedges.tsv` before
 filtering — do not assume casing.
