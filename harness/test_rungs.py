@@ -2,8 +2,9 @@
 
 Rung 0 = endpoint liveness: q08 returns >=1 binding; faults surface as failures.
 Rung 2 = label parity: q02/q05 return the same projection from Ontop and the GraphDB ground truth.
-Rung 2 needs BOTH endpoints up (Ontop on :7300, GraphDB on :7200) and Postgres loaded
-(`make load-postgres`).
+Rung 3 = label parity over the Iceberg leg: q01/q06 (compound), Ontop -> Trino -> Iceberg.
+Each parity rung needs BOTH endpoints up (Ontop on :7300, GraphDB on :7200) and its source loaded:
+rung 2 -> `make load-postgres`, rung 3 -> `make up-rung3 && make load-iceberg` (a different Ontop).
 """
 from __future__ import annotations
 
@@ -28,5 +29,12 @@ def test_rung0_smoke_endpoint_live():
 @pytest.mark.rung2
 @pytest.mark.parametrize("qname", ["q02_disease_associates_gene", "q05_count_genes"])
 def test_rung2_parity(qname):
+    result = run_pair(qname)
+    assert result["pass"], result["fidelity_loss"]
+
+
+@pytest.mark.rung3
+@pytest.mark.parametrize("qname", ["q01_list_compounds", "q06_count_compounds"])
+def test_rung3_parity(qname):
     result = run_pair(qname)
     assert result["pass"], result["fidelity_loss"]

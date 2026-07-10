@@ -1,13 +1,16 @@
 name: vkg-connectivity
 
-# Rung 0 (liveness): Postgres + standalone Ontop only. Later rungs add minio/trino
-# and swap Ontop's mapping — added when each rung is built, not scaffolded ahead (see CLAUDE.md).
+# Rung 0/2 (liveness + PG parity): Postgres + standalone Ontop. Rung 3 adds the lakehouse leg —
+# minio + nessie (Iceberg catalog) + trino + a second Ontop bound to Trino. Services are gated by
+# compose profiles so each rung brings up only its own stack; earlier rungs stay runnable (CLAUDE.md).
 # Run via the Makefile so secrets/.env is passed: `docker compose --env-file secrets/.env ...`.
 
 services:
   postgres:
     image: postgres:16.4
-    profiles: ["rung0", "rung2", "rung3", "rung4"]
+    # NOT in rung3: that rung's only source is compound@Iceberg, so Postgres is dead weight there.
+    # It rejoins at rung4 (Trino's postgresql catalog).
+    profiles: ["rung0", "rung2", "rung4"]
     environment:
       # `:?` aborts `compose up` by name if unset/empty — an empty USER/DB would silently
       # coerce the Postgres image to its own defaults (db != yours), masking the misconfig.
@@ -56,5 +59,101 @@ services:
       - ./ontop/postgres.properties:/opt/ontop/input/postgres.properties:ro
       - ./ontop/jdbc:/opt/ontop/jdbc:ro
 
+  # --- rung 3+ lakehouse leg: MinIO (S3) -> Nessie (Iceberg catalog) -> Trino -> Ontop ------------
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    profiles: ["rung3", "rung4"]
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?set MINIO_ROOT_USER in secrets/.env}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD in secrets/.env}
+    ports:
+      - "${MINIO_HOST_S3_PORT:-9000}:9000"
+      - "${MINIO_HOST_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio-data:/data
+
+  # One-shot: wait for MinIO, create the warehouse bucket, exit. mc retries the alias until MinIO
+  # answers, so this needs no MinIO healthcheck (the server image ships neither curl nor mc). Trino
+  # gates on this completing, so the bucket exists before the first CREATE SCHEMA ... location=s3://.
+  createbuckets:
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z
+    profiles: ["rung3", "rung4"]
+    depends_on:
+      - minio
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      S3_BUCKET: ${S3_BUCKET:-warehouse}
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD}; do
+        echo 'waiting for minio...'; sleep 1; done;
+      mc mb --ignore-existing local/$${S3_BUCKET};
+      echo \"bucket ready: $${S3_BUCKET}\";
+      "
+
+  # Iceberg catalog. IN_MEMORY version store = catalog pointers are ephemeral (lost on container
+  # recreate); the parquet/metadata live in MinIO, and `make load-iceberg` re-creates the pointers,
+  # so the rung's flow (up -> load -> query) is unaffected. Lightest catalog that works locally.
+  nessie:
+    image: ghcr.io/projectnessie/nessie:0.108.1
+    profiles: ["rung3", "rung4"]
+    environment:
+      NESSIE_VERSION_STORE_TYPE: IN_MEMORY
+    ports:
+      - "${NESSIE_HOST_PORT:-19120}:19120"
+
+  trino:
+    image: trinodb/trino:478
+    profiles: ["rung3", "rung4"]
+    depends_on:
+      nessie:
+        condition: service_started
+      createbuckets:
+        condition: service_completed_successfully
+    environment:
+      # Consumed by ${ENV:...} substitution in trino/catalog/iceberg.properties (keeps the S3 secret
+      # out of that tracked file). ${VAR:?} aborts `up` if unset.
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:?set AWS_ACCESS_KEY_ID in secrets/.env}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:?set AWS_SECRET_ACCESS_KEY in secrets/.env}
+    ports:
+      - "${TRINO_HOST_PORT:-8081}:8080"
+    volumes:
+      # Whole catalog dir: rung 3 = iceberg.properties only; rung 4 adds postgresql.properties here.
+      - ./trino/catalog:/etc/trino/catalog:ro
+    healthcheck:
+      # trino CLI ships in the image; SELECT 1 succeeds only once the coordinator is query-ready.
+      test: ["CMD", "trino", "--execute", "SELECT 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+      start_period: 30s
+
+  # Second standalone Ontop, bound to Trino (not Postgres). Same host port as the rung 0/2 Ontop —
+  # only one rung's profile is active at a time, so no conflict; the SPARQL URL stays :7300. No DB
+  # creds injected: trino.properties carries jdbc.user=trino and Trino runs no-auth here.
+  ontop-iceberg:
+    image: ontop/ontop:5.5.0
+    profiles: ["rung3"]
+    depends_on:
+      trino:
+        condition: service_healthy
+    environment:
+      ONTOP_MAPPING_FILE: /opt/ontop/input/iceberg.obda
+      ONTOP_PROPERTIES_FILE: /opt/ontop/input/trino.properties
+      ONTOP_CORS_ALLOWED_ORIGINS: "*"
+      ONTOP_LOG_LEVEL: ${ONTOP_LOG_LEVEL:-INFO}
+      ONTOP_LAZY_INIT: "true"
+      ONTOP_DEV_MODE: "true"
+    ports:
+      - "${ONTOP_HOST_PORT:-7300}:8080"
+    volumes:
+      - ./mappings/iceberg.obda:/opt/ontop/input/iceberg.obda:ro
+      - ./ontop/trino.properties:/opt/ontop/input/trino.properties:ro
+      # Same jdbc dir as rung 0/2: now holds BOTH the postgres and trino JDBC jars; Ontop loads all.
+      - ./ontop/jdbc:/opt/ontop/jdbc:ro
+
 volumes:
   pgdata:
+  minio-data:

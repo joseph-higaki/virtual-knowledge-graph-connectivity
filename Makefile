@@ -5,9 +5,11 @@ COMPOSE := docker compose --env-file secrets/.env
 PY := .venv/bin/python
 PIP := .venv/bin/pip
 PG_DRIVER := ontop/jdbc/postgresql-42.7.4.jar
+TRINO_DRIVER := ontop/jdbc/trino-jdbc-478.jar   # matches trinodb/trino:478 in docker-compose.yml
 
 .PHONY: venv deps up-rung0 down ps logs test-rung0 smoke ui sql clean \
-        fetch tables load-postgres up-rung2 test-rung2 parity parity-detail ui-app
+        fetch tables load-postgres up-rung2 test-rung2 parity parity-detail ui-app \
+        up-rung3 load-iceberg test-rung3 parity-rung3
 
 venv:
 	test -d .venv || python3 -m venv .venv
@@ -18,13 +20,17 @@ $(PG_DRIVER):
 	mkdir -p ontop/jdbc
 	curl -fsSL -o $@ https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.4/postgresql-42.7.4.jar
 
-deps: venv $(PG_DRIVER)   # venv + pinned Postgres JDBC driver Ontop mounts
+$(TRINO_DRIVER):
+	mkdir -p ontop/jdbc
+	curl -fsSL -o $@ https://repo1.maven.org/maven2/io/trino/trino-jdbc/478/trino-jdbc-478.jar
+
+deps: venv $(PG_DRIVER) $(TRINO_DRIVER)   # venv + pinned Postgres & Trino JDBC drivers Ontop mounts
 
 up-rung0: $(PG_DRIVER)    # bring up Postgres + Ontop (rung 0)
 	$(COMPOSE) --profile rung0 up -d
 
-down:                     # stop/remove containers (keeps pgdata volume)
-	$(COMPOSE) down
+down:                     # stop/remove containers across ALL rung profiles (keeps volumes)
+	$(COMPOSE) --profile "*" down   # every service is profile-gated; plain `down` would skip them
 
 ps:
 	$(COMPOSE) ps
@@ -59,6 +65,20 @@ parity: venv             # print the per-query Ontop-vs-ground-truth diff (q02, 
 
 parity-detail: venv      # same, but side-by-side rows + per-endpoint telemetry
 	$(PY) -m harness.parity --detail q02 q05
+
+# --- rung 3: Ontop -> Trino -> Iceberg (compound), parity vs ground truth -------------------------
+# Switching rungs shares Ontop's host port :7300 — run `make down` first if another rung is up.
+up-rung3: $(TRINO_DRIVER)   # minio + nessie + trino + Ontop(->Trino); blocks until Trino is healthy
+	$(COMPOSE) --profile rung3 up -d
+
+load-iceberg: tables       # create iceberg.hetionet schema + compound table via Trino, INSERT slice
+	$(PY) -m ingest.load_iceberg
+
+test-rung3: venv           # label parity for q01/q06 vs the GraphDB ground truth (stack up + loaded)
+	$(PY) -m pytest -m rung3 -q
+
+parity-rung3: venv         # per-query Ontop-vs-ground-truth diff (q01, q06); add --detail by hand
+	$(PY) -m harness.parity q01 q06
 
 UI_HOST_PORT ?= 7400
 ui-app: venv             # local compare UI: virtual vs materialized + SQL translation (needs stack up)

@@ -108,7 +108,7 @@ def render(name: str, ontop: dict, ground_truth: dict, result: dict, file=sys.st
     o_rows = sorted(ontop["rows"], key=lambda r: [str(r.get(c)) for c in cols])
     g_rows = sorted(ground_truth["rows"], key=lambda r: [str(r.get(c)) for c in cols])
     width = max([24, *(len(_fmt_row(cols, r)) for r in o_rows)]) + 2
-    p(f"\n  {'#':<4}{'ontop → Postgres':<{width}}{'ground_truth':<{width}}match")
+    p(f"\n  {'#':<4}{'ontop (virtual)':<{width}}{'ground_truth':<{width}}match")
     for i in range(max(len(o_rows), len(g_rows))):
         o = o_rows[i] if i < len(o_rows) else None
         g = g_rows[i] if i < len(g_rows) else None

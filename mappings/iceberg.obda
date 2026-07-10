@@ -1,0 +1,10 @@
+[PrefixDeclaration]
+hetio:		https://het.io/schema/
+rdfs:		http://www.w3.org/2000/01/rdf-schema#
+xsd:		http://www.w3.org/2001/XMLSchema#
+
+[MappingDeclaration] @collection [[
+mappingId	compound
+target		<https://het.io/compound/{id}> a hetio:Compound ; rdfs:label {name}^^xsd:string .
+source		SELECT id, name FROM iceberg.hetionet.compound
+]]

@@ -43,8 +43,8 @@ virtual-knowledge-graph-connectivity/
 │
 ├── trino/
 │   └── catalog/
-│       ├── postgresql.properties  # Trino postgresql connector -> Postgres
-│       └── iceberg.properties     # Trino iceberg connector -> catalog (Nessie/REST/HMS) + MinIO/S3
+│       ├── postgresql.properties  # Trino postgresql connector -> Postgres  (rung 4)
+│       └── iceberg.properties     # Trino iceberg connector -> Nessie catalog + MinIO/S3  (rung 3, chosen: Nessie)
 │
 ├── queries/                        # hand-written SPARQL. NO generator. Each tagged with its rung.
 │   ├── q01_list_compounds.rq       # rung 3  — single Iceberg source

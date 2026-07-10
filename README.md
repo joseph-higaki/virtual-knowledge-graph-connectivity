@@ -224,7 +224,42 @@ stack must be up. A tiny stdlib server (`ui/server.py`) proxies both endpoints s
 > Editing a mapping while Ontop is running trips a WSL/9p stale bind-mount on `restart`; use
 > `make down && make up-rung2` (a container **recreate**) so the new `.obda` is re-mounted and parsed.
 
-Rungs 3–4: TBD.
+### Rung 3 — Ontop → Trino → Iceberg (parity)
+
+The lakehouse leg. The `compound` node table lives in **Apache Iceberg on MinIO**; Iceberg has no
+query engine, so a **second** standalone Ontop is pointed at **Trino**, whose Iceberg connector reads
+the table from MinIO through a catalog. Same SPARQL endpoint (`:7300`), same parity contract — only
+the physical source moved off Postgres and behind a federation engine.
+
+```
+make down          # free :7300 if rung 0/2 is up (rung Ontops share the host port)
+make up-rung3      # minio + nessie (catalog) + trino + Ontop→Trino; blocks until Trino is healthy
+make load-iceberg  # CREATE SCHEMA/TABLE + INSERT the 1,552 compounds into iceberg.hetionet via Trino
+make test-rung3    # label parity for q01 (list compounds) + q06 (COUNT) vs the GraphDB ground truth
+make parity-rung3  # same, printed as the per-query diff + fidelity-loss dict
+```
+
+`q01` (1,552 compound labels) and `q06` (COUNT → 1,552) both PASS. `make sql
+Q=queries/q01_list_compounds.rq` shows the SQL Ontop pushes to **Trino** (`SELECT … FROM "compound"`,
+the Iceberg table resolved via the JDBC URL's default `iceberg/hetionet`) — this is the same
+`reformulate` view that will prove the cross-catalog scans at rung 4.
+
+**Catalog choice — Nessie.** Trino's Iceberg connector needs a catalog implementation (REST, Nessie,
+or Hive Metastore) plus S3 config; the values are version-sensitive, so they mirror the Ontop team's
+known-working `ontopic-vkg/ontop-trino-iceberg-playground` (Nessie) and were re-checked against the
+Trino 478 docs. Nessie is the lightest that works here: a single container with an **in-memory version
+store** — it tracks only catalog pointers (namespaces/table metadata); the parquet + Iceberg metadata
+live in MinIO. Trino uses its **native S3** file system (`fs.native-s3.enabled=true`, path-style) — no
+Hadoop. Pins: `trinodb/trino:478`, `ghcr.io/projectnessie/nessie:0.108.1`, MinIO
+`RELEASE.2025-09-07T16-13-09Z`. Only Trino holds the S3 credentials (injected via Trino's `${ENV:…}`
+substitution from `secrets/.env`), so no secret sits in a tracked file.
+
+> **Two rung-3 gotchas.** (1) Every service is profile-gated, so a plain `docker compose down` skips
+> them — `make down` now uses `--profile "*"`. (2) Nessie's in-memory store means a container recreate
+> drops the catalog pointers (the data stays in MinIO); just re-run `make load-iceberg` — that is the
+> rung's normal `up → load` flow, and the loader's `DROP TABLE IF EXISTS` makes it idempotent.
+
+Rung 4: TBD.
 
 ## Explicitly out of scope (deferred, on purpose)
 
