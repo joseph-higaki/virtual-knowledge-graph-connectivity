@@ -45,32 +45,31 @@ flowchart TB
     cmp["Parity Console<br/>harness/parity.py"]
 
     ontop(["Ontop — SPARQL endpoint :7300<br/>SPARQL to SQL rewriter"])
-    obda[/"polyglot.obda<br/>OBDA relational-to-RDF mapping"/]
+    obda[/"OBDA<br/>relational-to-RDF mapping"/]
 
     trino["Trino<br/>query and federation engine"]
 
-    subgraph LAKE["Drug Lake — lakehouse"]
-        nessie["Nessie<br/>Iceberg catalog"]
-        iceberg["Apache Iceberg — table format<br/>compound · compound_gene_binding · compound_disease_treatment"]
+    subgraph LAKE["Drug Lake<br/>Lakehouse"]
+        nessie["Nessie<br/>Catalog"]
+        iceberg["Apache Iceberg<br/>Table Format"]
         minio[("MinIO / S3<br/>object storage")]
     end
 
-    pg[("Gene–Disease Registry — PostgreSQL<br/>gene · disease · gene_disease_association")]
+    pg[("Gene–Disease Registry<br/>PostgreSQL")]
     gdb[("GraphDB — materialized ABox<br/>ground truth, external")]
 
-    ui  -->|SPARQL| ontop
-    cmp -->|SPARQL| ontop
-    ui  -.->|parity baseline| gdb
-    cmp -.->|parity baseline| gdb
+    ui  -->|query| ontop
+    cmp -->|query| ontop
+    ui  -.->|baseline| gdb
+    cmp -.->|baseline| gdb
 
     ontop -.->|reads| obda
     ontop -->|SQL over JDBC| trino
 
     trino -->|postgresql catalog| pg
     trino -->|iceberg catalog| nessie
-    trino -->|native S3| minio
-    nessie -.->|table pointers| iceberg
-    iceberg -.->|data files| minio
+    nessie -->|table pointers| iceberg
+    iceberg -->|data files| minio
 
     classDef entry fill:#2563eb,stroke:#1e3a8a,color:#ffffff,stroke-width:2px;
     classDef optional fill:#eeeeee,stroke:#888888,color:#333333,stroke-dasharray:4 4;
