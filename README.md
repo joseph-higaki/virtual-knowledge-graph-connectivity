@@ -1,11 +1,28 @@
 # virtual-knowledge-graph-connectivity
 
-A **Virtual Knowledge Graph (VKG)** harness that exercises the *plumbing* of an **Ontology-Based Data Access (OBDA)** architecture over a simulated brownfield analytics stack — proving one hand-written SPARQL query resolves unchanged across federated relational + lakehouse sources, validated against a **Materialized Graph** ground truth.
+A **Virtual Knowledge Graph (VKG)** reference setup that exercises the *plumbing* of an **Ontology-Based Data Access (OBDA)** architecture over a simulated brownfield analytics stack.
+Proves one hand-written SPARQL query resolves unchanged across federated relational + lakehouse sources, validated against a **Materialized Knowledge Graph** ground truth.
+
+## Table of Contents
+
+- [The landscape](#the-landscape)
+  - [Components](#components)
+- [Ontology (TBox)](#ontology-tbox)
+- [Architecture](#architecture)
+- [OBDA mapping](#obda-mapping)
+- [Virtual vs Materialized Knowledge Graph Results](#virtual-vs-materialized-knowledge-graph-results)
+- [Compare UI - Virtual vs Materialized](#compare-ui---virtual-vs-materialized)
+- [Information Model on Sources (ERD)](#information-model-on-sources-erd)
+  - [Gene Disease Registry - PostgreSQL - ABox](#gene-disease-registry---postgresql---abox)
+  - [Drug Lake - Lakehouse (Iceberg, Nessie, MinIO)](#drug-lake---lakehouse-iceberg-nessie-minio)
+  - [Combined — where federation happens](#combined--where-federation-happens)
+- [The ground truth](#the-ground-truth)
+- [Running it](#running-it)
 
 ## The landscape
 
 The tech stack at this repo mirrors a brownfield analytics enterprise setup.
-The information model is deliberately tiny — three entities and their relationships — to keep the focus on connectivity rather than business rules.
+The information model is deliberately tiny, three entities and their relationships, to keep the focus on connectivity rather than business rules.
 The information model is a slice of [Hetionet](https://het.io/) ([hetio/hetionet](https://github.com/hetio/hetionet)).
 
 ![hetionet-metagraph](_resources/README.md/hetionet-metagraph.png)
@@ -16,14 +33,15 @@ The information model is a slice of [Hetionet](https://het.io/) ([hetio/hetionet
 |---|---|
 | SPARQL Parity Console | Python console app; hits both graphs |
 | SPARQL Compare UI | HTML + stdlib Python server (`ui/server.py`); hits both graphs |
-| SPARQL endpoint + SPARQL→SQL rewriting | **Ontop** |
-| Relational to RDF mapping | **OBDA** mapping files (`mappings/*.obda`) |
-| SQL federation across sources | **Trino** |
-| Gene Disease Registry  | **PostgreSQL** RDBMS |
+| SPARQL endpoint + SPARQL→SQL rewriting | **[Ontop](https://ontop-vkg.org/)** |
+| Relational to RDF mapping | **[OBDA](https://ontop-vkg.org/guide/advanced/mapping-language.html)** mapping files (`mappings/*.obda`) |
+| SQL federation across sources | **[Trino](https://trino.io/)** |
+| Gene Disease Registry  | **[PostgreSQL](https://www.postgresql.org/)** RDBMS |
 | Drug Lake   | **Lakehouse** (Iceberg·Nessie·MinIO) |
-| Lakehouse table format | **Apache Iceberg** |
-| Lakehouse catalog | **Nessie** |
-| Lakehouse Object storage | **MinIO** (S3-compatible) |
+| Lakehouse table format | **[Apache Iceberg](https://iceberg.apache.org/)** |
+| Lakehouse catalog | **[Nessie](https://projectnessie.org/)** |
+| Lakehouse Object storage | **[MinIO](https://min.io/)** (S3-compatible) |
+| Ground truth store | **[GraphDB](https://www.ontotext.com/products/graphdb/)** (external, not served) |
 
 ## Ontology (TBox)
 
@@ -57,10 +75,17 @@ hetio:treats     a owl:ObjectProperty ;   # Compound–treats–Disease   (CtD)
 
 ## Architecture
 
-SPARQL clients — the **compare UI** and the **parity console** hit **one** Ontop endpoint. 
-Ontop reads `polyglot.obda` and rewrites SPARQL to SQL against Trino.
-Trino is the federation engine and the SQL entry for both the Drug Lake (Iceberg lakehouse) and the Gene–Disease Registry (PostgreSQL). 
-One GraphDB instance sits off the serving connectivity path; its only purpose is to be the equivalent RDFS Materialized Knowledge Graph used for comparison. It was stood up as part of [biomedical-rag-bench](https://github.com/joseph-higaki/biomedical-rag-bench/tree/v1.1.1).
+SPARQL clients the **compare UI** and the **parity console** hit **one** Ontop endpoint. 
+
+Ontop reads `polyglot.obda` and rewrites SPARQL to SQL against Trino. The mapping is configuration
+Ontop consults locally to build that SQL — it is not a network hop, so it never sits between Ontop
+and Trino on the wire; the dashed "reads" edge below is a config dependency, not a data-flow step.
+
+Trino is the federation engine and the SQL entry for both the **Drug Lake (Iceberg lakehouse)** and the **Gene–Disease Registry (PostgreSQL)**. 
+
+One **GraphDB instance** (dashed, below) sits off the serving connectivity path; its only purpose is to be the equivalent RDFS Materialized Knowledge Graph the compare UI and parity console diff results against.
+
+It was stood up as part of [biomedical-rag-bench](https://github.com/joseph-higaki/biomedical-rag-bench/tree/v1.1.1).
 
 
 ```mermaid
@@ -79,9 +104,12 @@ flowchart TB
     end
 
     pg[("Gene–Disease Registry — PostgreSQL<br/>gene · disease · gene_disease_association")]
+    gdb[("GraphDB — materialized ABox<br/>ground truth, external")]
 
     ui  -->|SPARQL| ontop
     cmp -->|SPARQL| ontop
+    ui  -.->|parity baseline| gdb
+    cmp -.->|parity baseline| gdb
 
     ontop -.->|reads| obda
     ontop -->|SQL over JDBC| trino
@@ -93,14 +121,17 @@ flowchart TB
     iceberg -.->|data files| minio
 
     classDef entry fill:#2563eb,stroke:#1e3a8a,color:#ffffff,stroke-width:2px;
+    classDef optional fill:#eeeeee,stroke:#888888,color:#333333,stroke-dasharray:4 4;
     class ontop entry;
+    class gdb optional;
 ```
 
 
 ## OBDA mapping
 
-An **OBDA mapping** is the relational→RDF bridge Ontop uses to rewrite SPARQL into SQL. Each
-`mappingId` is a *triple map*: a **target** RDF template (with `{column}` placeholders) fed by a
+An **OBDA mapping** is the relational to RDF bridge Ontop uses to rewrite SPARQL into SQL. 
+
+Each `mappingId` is a *triple map*: a **target** RDF template (with `{column}` placeholders) fed by a
 **source** SQL query. Ontop never materializes these triples — it composes the maps with the
 incoming SPARQL and pushes one SQL query down to the sources.
 
@@ -129,17 +160,17 @@ Postgres. A SPARQL query touching `hetio:binds` therefore forces Trino to join a
 
 The VKG is **correct if it returns the same bindings as the GraphDB ground truth**, compared on the
 **label projection** (the human-readable `?xLabel` columns). 
+
 Entity IRIs are *not* compared — Ontop mints its own scheme (`https://het.io/…`) while the GraphDB ground truth uses `ncbigene:`/`do:` URIs. Reconciling those is a benchmark-integration concern, not a connectivity one. Queries bind entities **by label, not by IRI**, so one `.rq` runs unchanged on both endpoints and the parity comparison never sees an IRI.
 
-Reconciling IRIs is a much bigger problem; this repo tackles only tooling and connectivity.
+**Reconciling IRIs is a much bigger problem; this repo tackles only tooling and connectivity.**
 
-## Compare UI — Virtual vs Materialized
+## Compare UI - Virtual vs Materialized
 
 `make ui-app` serves a local page (<http://localhost:7400/>) that runs one query against **both**
-engines side by side: the **Virtual** VKG (Ontop → Trino → Postgres + Iceberg) vs the
+engines side by side: the **Virtual** VKG (Ontop → Trino → ( Postgres + Iceberg) ) vs the
 **Materialized** GraphDB, each endpoint's telemetry, a latency bar, the parity verdict, and the SQL
-Ontop pushed down. A **Raw ↔ Labels** toggle makes the invariant visible — in Raw the IRI columns
-disagree; in Labels those columns drop and the rows match.
+Ontop pushed down. 
 
 ![Compare UI — Virtual vs Materialized, Raw ↔ Labels toggle](_resources/README.md/image-1-imageonline.co-merged.png)
 
