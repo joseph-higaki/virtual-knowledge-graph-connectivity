@@ -8,7 +8,7 @@ The tech stack at this repo mirrors a brownfield analytics enterprise setup.
 The information model is deliberately tiny, three entities and their relationships, to keep the focus on connectivity rather than business rules.
 The information model is a slice of [Hetionet](https://het.io/) ([hetio/hetionet](https://github.com/hetio/hetionet)).
 
-![hetionet-metagraph](_resources/README.md/hetionet-metagraph.png)
+![alt text](_resources/README.md/image-2.png)
 
 ## Table of Contents
 
