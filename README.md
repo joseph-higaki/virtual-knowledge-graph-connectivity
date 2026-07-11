@@ -1,31 +1,83 @@
 # virtual-knowledge-graph-connectivity
 
 A **Virtual Knowledge Graph (VKG)** reference setup that exercises the *plumbing* of an **Ontology-Based Data Access (OBDA)** architecture over a simulated brownfield analytics stack.
-Proves one hand-written SPARQL query resolves unchanged across federated relational + lakehouse sources, validated against a **Materialized Knowledge Graph** ground truth.
 
-## Table of Contents
-
-- [The landscape](#the-landscape)
-  - [Components](#components)
-- [Ontology (TBox)](#ontology-tbox)
-- [Architecture](#architecture)
-- [OBDA mapping](#obda-mapping)
-- [Virtual vs Materialized Knowledge Graph Results](#virtual-vs-materialized-knowledge-graph-results)
-- [Compare UI - Virtual vs Materialized](#compare-ui---virtual-vs-materialized)
-- [Information Model on Sources (ERD)](#information-model-on-sources-erd)
-  - [Gene Disease Registry - PostgreSQL - ABox](#gene-disease-registry---postgresql---abox)
-  - [Drug Lake - Lakehouse (Iceberg, Nessie, MinIO)](#drug-lake---lakehouse-iceberg-nessie-minio)
-  - [Combined — where federation happens](#combined--where-federation-happens)
-- [The ground truth](#the-ground-truth)
-- [Running it](#running-it)
-
-## The landscape
+Proves a SPARQL query resolves unchanged across federated relational + lakehouse sources, validated against a **Materialized Knowledge Graph** ground truth.
 
 The tech stack at this repo mirrors a brownfield analytics enterprise setup.
 The information model is deliberately tiny, three entities and their relationships, to keep the focus on connectivity rather than business rules.
 The information model is a slice of [Hetionet](https://het.io/) ([hetio/hetionet](https://github.com/hetio/hetionet)).
 
 ![hetionet-metagraph](_resources/README.md/hetionet-metagraph.png)
+
+## Table of Contents
+
+- [Architecture](#architecture)
+  - [Components](#components)
+- [Ontology (TBox)](#ontology-tbox)
+- [Information Model on Sources (ERD)](#information-model-on-sources-erd)
+  - [Gene–Disease Registry - PostgreSQL](#genedisease-registry---postgresql)
+  - [Drug Lake - Lakehouse (Iceberg, Nessie, MinIO)](#drug-lake---lakehouse-iceberg-nessie-minio)
+- [OBDA mapping](#obda-mapping)
+- [Virtual vs Materialized Knowledge Graph Results](#virtual-vs-materialized-knowledge-graph-results)
+- [Compare UI - Virtual vs Materialized](#compare-ui---virtual-vs-materialized)
+- [The ground truth](#the-ground-truth)
+- [Running it](#running-it)
+
+## Architecture
+
+SPARQL clients the **Compare UI** and the **Parity Console** hit **one** Ontop endpoint. 
+
+Ontop reads `polyglot.obda` and rewrites SPARQL to SQL against Trino. The mapping is configuration
+Ontop consults locally to build that SQL — it is not a network hop, so it never sits between Ontop
+and Trino on the wire; the dashed "reads" edge below is a config dependency, not a data-flow step.
+
+Trino is the federation engine and the SQL entry for both the **Drug Lake (Iceberg lakehouse)** and the **Gene–Disease Registry (PostgreSQL)**. 
+
+One **GraphDB instance** (dashed, below) sits off the serving connectivity path; its only purpose is to be the equivalent RDFS Materialized Knowledge Graph the Compare UI and Parity Console diff results against.
+
+It was stood up as part of [biomedical-rag-bench](https://github.com/joseph-higaki/biomedical-rag-bench/tree/v1.1.1).
+
+
+```mermaid
+flowchart TB
+    ui["Compare UI<br/>ui/server.py + browser"]
+    cmp["Parity Console<br/>harness/parity.py"]
+
+    ontop(["Ontop — SPARQL endpoint :7300<br/>SPARQL to SQL rewriter"])
+    obda[/"polyglot.obda<br/>OBDA relational-to-RDF mapping"/]
+
+    trino["Trino<br/>query and federation engine"]
+
+    subgraph LAKE["Drug Lake — lakehouse"]
+        nessie["Nessie<br/>Iceberg catalog"]
+        iceberg["Apache Iceberg — table format<br/>compound · compound_gene_binding · compound_disease_treatment"]
+        minio[("MinIO / S3<br/>object storage")]
+    end
+
+    pg[("Gene–Disease Registry — PostgreSQL<br/>gene · disease · gene_disease_association")]
+    gdb[("GraphDB — materialized ABox<br/>ground truth, external")]
+
+    ui  -->|SPARQL| ontop
+    cmp -->|SPARQL| ontop
+    ui  -.->|parity baseline| gdb
+    cmp -.->|parity baseline| gdb
+
+    ontop -.->|reads| obda
+    ontop -->|SQL over JDBC| trino
+
+    trino -->|postgresql catalog| pg
+    trino -->|iceberg catalog| nessie
+    trino -->|native S3| minio
+    nessie -.->|table pointers| iceberg
+    iceberg -.->|data files| minio
+
+    classDef entry fill:#2563eb,stroke:#1e3a8a,color:#ffffff,stroke-width:2px;
+    classDef optional fill:#eeeeee,stroke:#888888,color:#333333,stroke-dasharray:4 4;
+    class ontop entry;
+    class gdb optional;
+```
+
 
 ### Components
 
@@ -36,7 +88,7 @@ The information model is a slice of [Hetionet](https://het.io/) ([hetio/hetionet
 | SPARQL endpoint + SPARQL→SQL rewriting | **[Ontop](https://ontop-vkg.org/)** |
 | Relational to RDF mapping | **[OBDA](https://ontop-vkg.org/guide/advanced/mapping-language.html)** mapping files (`mappings/*.obda`) |
 | SQL federation across sources | **[Trino](https://trino.io/)** |
-| Gene Disease Registry  | **[PostgreSQL](https://www.postgresql.org/)** RDBMS |
+| Gene–Disease Registry | **[PostgreSQL](https://www.postgresql.org/)** RDBMS |
 | Drug Lake   | **Lakehouse** (Iceberg·Nessie·MinIO) |
 | Lakehouse table format | **[Apache Iceberg](https://iceberg.apache.org/)** |
 | Lakehouse catalog | **[Nessie](https://projectnessie.org/)** |
@@ -73,57 +125,51 @@ hetio:treats     a owl:ObjectProperty ;   # Compound–treats–Disease   (CtD)
     rdfs:domain hetio:Compound ; rdfs:range hetio:Disease .
 ```
 
-## Architecture
 
-SPARQL clients the **compare UI** and the **parity console** hit **one** Ontop endpoint. 
+## Information Model on Sources (ERD)
 
-Ontop reads `polyglot.obda` and rewrites SPARQL to SQL against Trino. The mapping is configuration
-Ontop consults locally to build that SQL — it is not a network hop, so it never sits between Ontop
-and Trino on the wire; the dashed "reads" edge below is a config dependency, not a data-flow step.
+Gene and Disease references in Drug Lake are **cross-store** keys that are federated by **Trino**
 
-Trino is the federation engine and the SQL entry for both the **Drug Lake (Iceberg lakehouse)** and the **Gene–Disease Registry (PostgreSQL)**. 
-
-One **GraphDB instance** (dashed, below) sits off the serving connectivity path; its only purpose is to be the equivalent RDFS Materialized Knowledge Graph the compare UI and parity console diff results against.
-
-It was stood up as part of [biomedical-rag-bench](https://github.com/joseph-higaki/biomedical-rag-bench/tree/v1.1.1).
-
+### Gene–Disease Registry - PostgreSQL
 
 ```mermaid
-flowchart TB
-    ui["Compare UI<br/>ui/server.py + browser"]
-    cmp["Parity engine<br/>harness/parity.py"]
+erDiagram
+    GENE {
+        text id PK
+        text name
+    }
+    DISEASE {
+        text id PK
+        text name
+    }
+    GENE_DISEASE_ASSOCIATION {
+        text disease_id FK "-> disease.id"
+        text gene_id FK "-> gene.id"
+    }
 
-    ontop(["Ontop — SPARQL endpoint :7300<br/>SPARQL to SQL rewriter"])
-    obda[/"polyglot.obda<br/>OBDA relational-to-RDF mapping"/]
+    DISEASE ||--o{ GENE_DISEASE_ASSOCIATION : "associates (disease_id)"
+    GENE    ||--o{ GENE_DISEASE_ASSOCIATION : "gene_id"
+```
 
-    subgraph LAKE["Drug Lake — lakehouse source"]
-        trino["Trino<br/>query and federation engine"]
-        nessie["Nessie<br/>Iceberg catalog"]
-        iceberg["Apache Iceberg — table format<br/>compound · compound_gene_binding · compound_disease_treatment"]
-        minio[("MinIO / S3<br/>object storage")]
-    end
+### Drug Lake - Lakehouse (Iceberg, Nessie, MinIO)
 
-    pg[("Gene–Disease Registry — PostgreSQL<br/>gene · disease · gene_disease_association")]
-    gdb[("GraphDB — materialized ABox<br/>ground truth, external")]
+```mermaid
+erDiagram
+    COMPOUND {
+        text id PK
+        text name
+    }
+    COMPOUND_GENE_BINDING {
+        text compound_id "-> compound.id"
+        text gene_id "-> gene.id (in Postgres)"
+    }
+    COMPOUND_DISEASE_TREATMENT {
+        text compound_id "-> compound.id"
+        text disease_id "-> disease.id (in Postgres)"
+    }
 
-    ui  -->|SPARQL| ontop
-    cmp -->|SPARQL| ontop
-    ui  -.->|parity baseline| gdb
-    cmp -.->|parity baseline| gdb
-
-    ontop -.->|reads| obda
-    ontop -->|SQL over JDBC| trino
-
-    trino -->|postgresql catalog| pg
-    trino -->|iceberg catalog| nessie
-    trino -->|native S3| minio
-    nessie -.->|table pointers| iceberg
-    iceberg -.->|data files| minio
-
-    classDef entry fill:#2563eb,stroke:#1e3a8a,color:#ffffff,stroke-width:2px;
-    classDef optional fill:#eeeeee,stroke:#888888,color:#333333,stroke-dasharray:4 4;
-    class ontop entry;
-    class gdb optional;
+    COMPOUND ||--o{ COMPOUND_GENE_BINDING : "binds (compound_id)"
+    COMPOUND ||--o{ COMPOUND_DISEASE_TREATMENT : "treats (compound_id)"
 ```
 
 
@@ -174,87 +220,6 @@ Ontop pushed down.
 
 ![Compare UI — Virtual vs Materialized, Raw ↔ Labels toggle](_resources/README.md/image-1-imageonline.co-merged.png)
 
-
-## Information Model on Sources (ERD)
-
-**Dashed** relationships are **cross-store** — a foreign key whose target table lives in the *other* database, which no RDBMS enforces.
-
-**Those dashed edges are the joins Trino federates**.
-
-### Gene Disease Registry - PostgreSQL - ABox
-
-```mermaid
-erDiagram
-    GENE {
-        text id PK
-        text name
-    }
-    DISEASE {
-        text id PK
-        text name
-    }
-    GENE_DISEASE_ASSOCIATION {
-        text disease_id FK "-> disease.id"
-        text gene_id FK "-> gene.id"
-    }
-
-    DISEASE ||--o{ GENE_DISEASE_ASSOCIATION : "associates (disease_id)"
-    GENE    ||--o{ GENE_DISEASE_ASSOCIATION : "gene_id"
-```
-
-### Drug Lake - Lakehouse (Iceberg, Nessie, MinIO)
-
-```mermaid
-erDiagram
-    COMPOUND {
-        text id "no key enforcement"
-        text name
-    }
-    COMPOUND_GENE_BINDING {
-        text compound_id "-> compound.id"
-        text gene_id "-> gene.id (in Postgres)"
-    }
-    COMPOUND_DISEASE_TREATMENT {
-        text compound_id "-> compound.id"
-        text disease_id "-> disease.id (in Postgres)"
-    }
-    GENE {
-        text id "resides in Postgres"
-    }
-    DISEASE {
-        text id "resides in Postgres"
-    }
-
-    COMPOUND ||--o{ COMPOUND_GENE_BINDING : "binds (compound_id)"
-    GENE     ||..o{ COMPOUND_GENE_BINDING : "gene_id: cross-store, unenforced"
-    COMPOUND ||--o{ COMPOUND_DISEASE_TREATMENT : "treats (compound_id)"
-    DISEASE  ||..o{ COMPOUND_DISEASE_TREATMENT : "disease_id: cross-store, unenforced"
-```
-
-### Combined — where federation happens
-
-Solid edges stay inside one store; the two dashed edges cross the boundary and are exactly what
-Trino federates. Node tables are cylinders, association (junction) tables are parallelograms.
-
-```mermaid
-flowchart TB
-    subgraph PG["PostgreSQL"]
-        gene[("gene")]
-        disease[("disease")]
-        gene_disease_association[/"gene_disease_association"/]
-    end
-    subgraph ICE["Iceberg (MinIO)"]
-        compound[("compound")]
-        compound_gene_binding[/"compound_gene_binding"/]
-        compound_disease_treatment[/"compound_disease_treatment"/]
-    end
-
-    disease -->|associates| gene_disease_association --> gene
-    compound -->|binds| compound_gene_binding
-    compound_gene_binding -.->|"binds: cross-store join (Trino)"| gene
-    compound -->|treats| compound_disease_treatment
-    compound_disease_treatment -.->|"treats: cross-store join (Trino)"| disease
-```
 
 ## The ground truth 
 
