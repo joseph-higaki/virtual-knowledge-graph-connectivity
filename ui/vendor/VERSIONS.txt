@@ -1,0 +1,9 @@
+Vendored, pinned browser libs for the compare UI (served by ui/server.py at /vendor/*).
+Offline-safe; re-fetch only to bump a version. Source: jsdelivr npm mirror.
+
+prism-core.min.js    prismjs       1.29.0   /npm/prismjs@1.29.0/components/prism-core.min.js
+prism-turtle.min.js  prismjs       1.29.0   /npm/prismjs@1.29.0/components/prism-turtle.min.js   (sparql depends on turtle — load before it)
+prism-sparql.min.js  prismjs       1.29.0   /npm/prismjs@1.29.0/components/prism-sparql.min.js
+prism-sql.min.js     prismjs       1.29.0   /npm/prismjs@1.29.0/components/prism-sql.min.js
+codejar.js           codejar       4.2.0    /npm/codejar@4.2.0/codejar.js                        (ESM; imported by the module script)
+sql-formatter.min.js sql-formatter 15.8.2   /npm/sql-formatter@15/dist/sql-formatter.min.js      (UMD global `sqlFormatter`; used with language:'trino')

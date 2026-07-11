@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Materialized vs Virtual — Hetionet VKG</title>
+<title>Virtual vs Materialized Virtual Knowledge Graph — Hetionet</title>
 <style>
   :root {
     --bg:#f6f7f9; --panel:#fff; --ink:#1a1d21; --muted:#6b7280; --line:#e3e6ea;
@@ -33,8 +33,20 @@
   .seg { display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
   .seg button { border:0; border-radius:0; background:var(--panel); }
   .seg button.on { background:var(--virtual); color:#fff; }
-  textarea { width:100%; min-height:120px; padding:11px 12px; border:1px solid var(--line);
-    border-radius:10px; background:var(--panel); color:var(--ink); resize:vertical; }
+  /* CodeJar-backed SPARQL editor: a contenteditable div on the dark code surface, live-highlighted by Prism */
+  .editor { width:100%; min-height:120px; max-height:340px; overflow:auto; padding:11px 12px;
+    border:1px solid var(--line); border-radius:10px; background:var(--code); color:var(--code-ink);
+    white-space:pre-wrap; tab-size:2; outline:none; caret-color:var(--code-ink); font-size:13px; line-height:1.55; }
+  .editor:focus { border-color:var(--virtual); }
+  /* Prism tokens — appear only on the two dark code surfaces (editor + SQL pane), so style globally */
+  .token.comment { color:#8b98a5; font-style:italic; }
+  .token.keyword, .token.atrule { color:#79c0ff; }
+  .token.string { color:#7ee787; }
+  .token.number, .token.boolean { color:#ffa657; }
+  .token.variable { color:#f0b45e; }
+  .token.function, .token.prefixed, .token.tag, .token.namespace, .token.url { color:#56d4c9; }
+  .token.punctuation { color:#9aa3af; }
+  .token.operator { color:#d5dae3; }
   .banner { margin:12px 0; padding:10px 14px; border-radius:10px; border:1px solid var(--line);
     display:flex; gap:14px; align-items:center; flex-wrap:wrap; font-weight:600; }
   .banner.ok { background:var(--ok-bg); border-color:var(--ok); color:var(--ok); }
@@ -71,9 +83,7 @@
 </head>
 <body>
 <header>
-  <h1>Materialized vs Virtual — Hetionet VKG</h1>
-  <div class="sub">One SPARQL query, two engines: <b>Ontop → Trino</b> (virtual VKG, federating Postgres + Iceberg) vs
-    <b>GraphDB</b> (materialized ABox). Compared on the label projection; Ontop's pushed SQL shown below.</div>
+  <h1>Virtual vs Materialized — Hetionet VKG</h1>
 </header>
 <main>
   <div class="controls">
@@ -83,18 +93,29 @@
       <button data-mode="labels" class="on">Labels</button>
       <button data-mode="raw">Raw</button>
     </div>
-    <span class="hint" id="hint">Labels view drops IRI columns (engines mint different IRIs).</span>
   </div>
-  <textarea id="query" class="mono" spellcheck="false" placeholder="Write SPARQL, or pick a query above…"></textarea>
+  <div id="query" class="editor mono" spellcheck="false"></div>
 
   <div id="out"></div>
 </main>
 
-<script>
+<!-- pinned, vendored libs (ui/vendor/, served by server.py at /vendor/*) — offline-safe; see vendor/VERSIONS.txt -->
+<script>window.Prism = { manual: true };</script>
+<script src="/vendor/prism-core.min.js"></script>
+<script src="/vendor/prism-turtle.min.js"></script>
+<script src="/vendor/prism-sparql.min.js"></script>
+<script src="/vendor/prism-sql.min.js"></script>
+<script src="/vendor/sql-formatter.min.js"></script>
+<script type="module">
+import { CodeJar } from "/vendor/codejar.js";
+
 const $ = s => document.querySelector(s);
 let queries = [];       // [{name, text}]
 let last = null;        // last /api/run response
 let mode = "labels";    // "labels" | "raw"
+
+// SPARQL editor: a contenteditable div re-highlighted by Prism on each edit; CodeJar preserves the caret.
+const jar = CodeJar($("#query"), el => { el.innerHTML = Prism.highlight(el.textContent, Prism.languages.sparql, "sparql"); });
 
 async function loadQueries() {
   queries = await (await fetch("/api/queries")).json();
@@ -102,10 +123,10 @@ async function loadQueries() {
   pick.innerHTML = queries.map((q,i)=>`<option value="${i}">${q.name}</option>`).join("");
   const def = queries.findIndex(q=>q.name.startsWith("q02"));
   pick.value = def >= 0 ? def : 0;
-  $("#query").value = queries[pick.value]?.text || "";
+  jar.updateCode(queries[pick.value]?.text || "");
 }
 
-$("#picker")?.addEventListener("change", e => { $("#query").value = queries[e.target.value]?.text || ""; });
+$("#picker")?.addEventListener("change", e => { jar.updateCode(queries[e.target.value]?.text || ""); });
 $("#view").addEventListener("click", e => {
   const b = e.target.closest("button[data-mode]"); if (!b) return;
   mode = b.dataset.mode;
@@ -119,7 +140,7 @@ async function run() {
   $("#out").innerHTML = "";
   try {
     const r = await fetch("/api/run", {method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({query: $("#query").value})});
+      body: JSON.stringify({query: jar.toString()})});
     last = await r.json();
     if (last.error) { $("#out").innerHTML = `<div class="err">${esc(last.error)}</div>`; }
     else render(last);
@@ -129,6 +150,15 @@ async function run() {
 }
 
 function esc(s){ return String(s??"").replace(/[&<>]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+
+// Ontop's reformulated SQL is dense one-liner-ish Trino SQL; pretty-print it, then Prism-highlight.
+function sqlBlock(raw){
+  const text = String(raw ?? "");
+  let pretty = text;
+  try { pretty = sqlFormatter.format(text, {language:"trino", tabWidth:2, keywordCase:"upper"}); }
+  catch { /* SQL the formatter can't parse (or a reformulate-error string) — show as-is, still highlighted */ }
+  return `<pre class="sql mono"><code>${Prism.highlight(pretty, Prism.languages.sql, "sql")}</code></pre>`;
+}
 
 function table(cols, rows) {
   if (!rows.length) return `<div class="empty">0 rows</div>`;
@@ -166,7 +196,7 @@ function render(res) {
   const virtualCard = `<div class="card v">
       <div class="head"><span class="title">Virtual — Ontop → Trino</span><span class="tele">${tele(res.ontop.telemetry)}</span></div>
       <div class="tblwrap">${table(vCols, vRows)}</div>
-      <details open><summary>SQL translation (Ontop → Trino)</summary><pre class="sql mono">${esc(res.sql.sql)}</pre></details>
+      <details open><summary>SQL translation (Ontop → Trino)</summary>${sqlBlock(res.sql.sql)}</details>
     </div>`;
   const materialCard = `<div class="card m">
       <div class="head"><span class="title">Materialized — GraphDB ground truth</span><span class="tele">${tele(res.ground_truth.telemetry)}</span></div>

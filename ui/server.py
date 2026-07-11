@@ -1,14 +1,5 @@
 """Local live compare UI: virtual (Ontop→Trino, federating Postgres + Iceberg) vs materialized (GraphDB) for one SPARQL query.
 
-NOT a Claude Artifact — those run under a CSP that blocks all network calls, so they can't query a
-live endpoint. This is a tiny stdlib http.server that (a) serves index.html and (b) proxies one query
-to BOTH endpoints server-side, reusing the tested harness code (fetch/reformulate/parity). The browser
-therefore talks only to this same origin — no CORS, and no query logic duplicated into JS.
-
-The label projection (for the raw↔labels toggle and the parity verdict) drops any column whose
-bindings are IRIs in either endpoint: Ontop and GraphDB mint different IRI schemes, so only the
-literal/label columns are comparable (CLAUDE.md #7).
-
 Run: `make ui-app` (needs an Ontop + GraphDB stack up + loaded — e.g. `make up-rung4` + both loaders).
 Port via UI_HOST_PORT (default 7400). Endpoint-agnostic: it hits whatever Ontop is on :7300.
 """
@@ -28,6 +19,8 @@ from harness.run_query import fetch, reformulate
 _UI_DIR = Path(__file__).resolve().parent
 _QUERIES_DIR = _UI_DIR.parent / "queries"
 _EXAMPLES_DIR = _UI_DIR / "examples"  # UI-only teaching queries, kept out of the harness rung set
+_VENDOR_DIR = _UI_DIR / "vendor"  # pinned browser libs (Prism / CodeJar / sql-formatter); see vendor/VERSIONS.txt
+_VENDOR_TYPES = {".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8"}
 
 
 def _uri_columns(columns: list[str], bindings: list[dict]) -> set[str]:
@@ -106,8 +99,18 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, (_UI_DIR / "index.html").read_bytes(), "text/html; charset=utf-8")
         elif self.path == "/api/queries":
             self._json(200, _list_queries())
+        elif self.path.startswith("/vendor/"):
+            self._serve_vendor(self.path)
         else:
             self._json(404, {"error": f"no route {self.path}"})
+
+    def _serve_vendor(self, path: str) -> None:
+        """Static pinned libs from ui/vendor/, resolved-path-guarded against traversal."""
+        target = (_VENDOR_DIR / path[len("/vendor/"):]).resolve()
+        if _VENDOR_DIR not in target.parents or not target.is_file():
+            self._json(404, {"error": f"no asset {path}"})
+            return
+        self._send(200, target.read_bytes(), _VENDOR_TYPES.get(target.suffix, "application/octet-stream"))
 
     def do_POST(self):
         if self.path != "/api/run":
