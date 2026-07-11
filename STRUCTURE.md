@@ -6,9 +6,13 @@ with human-written SPARQL, reasoning off, and parity checked against a GraphDB g
 
 ```
 virtual-knowledge-graph-connectivity/
-├── README.md                       # what/why, the rung ladder, how to run, scope
+├── README.md                       # final state: landscape, components, ontology, architecture, mapping, scope
 ├── CLAUDE.md                       # hard constraints + build order for the coding session
 ├── STRUCTURE.md                    # this file
+├── docs/
+│   ├── staggered-execution.md      # the rung ladder, per-rung run commands, execution-log gotchas
+│   ├── polyglot-layer-choice.md    # decision: Trino (not Ontop) is the federation layer
+│   └── enterprise-auth-findings.md # finding: identity propagation across the Ontop→Trino→store hops
 ├── docker-compose.yml              # profiles: postgres | minio | trino | ontop  (graphdb ground truth = external by default)
 ├── secrets/
 │   ├── .env.example                # GROUND_TRUTH_SPARQL_URL, ONTOP_SPARQL_URL, MinIO dev creds, JDBC coords (tracked)
