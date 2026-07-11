@@ -1,6 +1,6 @@
-# Compounds that bind gene AGTR1, anchored + projected by LABEL only — parity on labels, never IRIs
-# (CLAUDE.md #7). Spans two relational sources (a cross-store join): the compound node + binding edge
-# on one, the anchor gene on the other — federated underneath.
+# Compounds that bind gene AGTR1, anchored + projected by LABEL
+# Spans two relational sources (
+# a cross-store join): the compound node + binding edge
 PREFIX hetio: <https://het.io/schema/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 

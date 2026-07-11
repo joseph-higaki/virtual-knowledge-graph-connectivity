@@ -1,5 +1,4 @@
 # Two-hop: diseases treated by compounds that bind gene AGTR1 (gene <-binds- compound -treats-> disease).
-# Projected by LABEL only — parity on labels, never IRIs (CLAUDE.md #7); no DISTINCT, both endpoints
 # return the same multiset. Spans two relational sources and crosses between them twice — the anchor
 # gene and result diseases on one, the compound + both edges on the other.
 PREFIX hetio: <https://het.io/schema/>

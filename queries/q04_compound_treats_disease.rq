@@ -1,6 +1,5 @@
-# Compounds that treat Alzheimer's disease, projected by LABEL only — parity on labels, never IRIs
-# (CLAUDE.md #7). Spans two relational sources (a cross-store join): the compound node + treatment
-# edge on one, the anchor disease on the other.
+# Compounds that treat Alzheimer's disease, projected by LABEL only
+# Spans two relational sources (a cross-store join): the compound node + treatment
 PREFIX hetio: <https://het.io/schema/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
