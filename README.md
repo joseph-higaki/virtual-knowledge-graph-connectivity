@@ -6,23 +6,23 @@ Proves a SPARQL query resolves unchanged across federated relational + lakehouse
 
 The tech stack at this repo mirrors a brownfield analytics enterprise setup.
 The information model is deliberately tiny, three entities and their relationships, to keep the focus on connectivity rather than business rules.
-The information model is a slice of [Hetionet](https://het.io/) ([hetio/hetionet](https://github.com/hetio/hetionet)).
 
-![alt text](_resources/README.md/image-2.png)
+The information model is **a slice** of [Hetionet](https://het.io/) ([hetio/hetionet](https://github.com/hetio/hetionet)).
+
+<img src="_resources/README.md/image-2.png" alt="alt text" width="400">
 
 ## Table of Contents
 
 - [Architecture](#architecture)
-  - [Components](#components)
-- [Ontology (TBox)](#ontology-tbox)
-- [Information Model on Sources (ERD)](#information-model-on-sources-erd)
-  - [Gene–Disease Registry - PostgreSQL](#genedisease-registry---postgresql)
-  - [Drug Lake - Lakehouse (Iceberg, Nessie, MinIO)](#drug-lake---lakehouse-iceberg-nessie-minio)
+- [Components](#components)
+- [Ontology](#ontology)
+- [Data Model from Sources (ERD)](#data-model-from-sources-erd)
 - [OBDA mapping](#obda-mapping)
 - [Virtual vs Materialized Knowledge Graph Results](#virtual-vs-materialized-knowledge-graph-results)
 - [Compare UI - Virtual vs Materialized](#compare-ui---virtual-vs-materialized)
 - [The ground truth](#the-ground-truth)
 - [Running it](#running-it)
+
 
 ## Architecture
 
@@ -38,6 +38,16 @@ One **GraphDB instance** (dashed, below) sits off the serving connectivity path;
 
 It was stood up as part of [biomedical-rag-bench](https://github.com/joseph-higaki/biomedical-rag-bench/tree/v1.1.1).
 
+
+<details open>
+<summary><b>Image diagram</b></summary>
+
+![virtual-kg-architecture](_resources/README.md/virtual-kg-architecture.png)
+
+</details>
+
+<details>
+<summary><b>Mermaid diagram</b></summary>
 
 ```mermaid
 flowchart TB
@@ -76,9 +86,9 @@ flowchart TB
     class ontop entry;
     class gdb optional;
 ```
+</details>
 
-
-### Components
+## Components
 
 | Purpose | Technology / tool |
 |---|---|
@@ -94,7 +104,7 @@ flowchart TB
 | Lakehouse Object storage | **[MinIO](https://min.io/)** (S3-compatible) |
 | Ground truth store | **[GraphDB](https://www.ontotext.com/products/graphdb/)** (external, not served) |
 
-## Ontology (TBox)
+## Ontology 
 
 The slice is three classes and minimal properties. 
 Reasoning is **off**, so `rdfs:domain`/`rdfs:range` here are documentation of intent, not inference rules.
@@ -124,8 +134,7 @@ hetio:treats     a owl:ObjectProperty ;   # Compound–treats–Disease   (CtD)
     rdfs:domain hetio:Compound ; rdfs:range hetio:Disease .
 ```
 
-
-## Information Model on Sources (ERD)
+## Data Model from Sources (ERD)
 
 Gene and Disease references in Drug Lake are **cross-store** keys that are federated by **Trino**
 
@@ -228,5 +237,5 @@ smoke (partial) and full ABox RDF are under `data/hetionet/rdf/`.
 
 ## Running it
 
-All run commands — the rung ladder and per-layer `make` targets — are documented in [docs/how-to-run-ui.md](docs/how-to-run-ui.md) and [docs/staggered-execution.md](docs/staggered-execution.md).
+All run commands, the rung ladder and per-layer `make` targets, are documented in [docs/how-to-run-ui.md](docs/how-to-run-ui.md) and [docs/staggered-execution.md](docs/staggered-execution.md).
 
