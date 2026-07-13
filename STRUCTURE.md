@@ -33,8 +33,9 @@ virtual-knowledge-graph-connectivity/
 │   └── build_rdf.py               # OPTIONAL: TSV -> hetionet.ttl for a clean-provenance local ground truth
 │
 ├── ontology/
-│   └── hetionet-schema.ttl        # TBox. OPTIONAL here (reasoning off; Ontop can run mapping-only).
-│                                  # Present so Phase 2.0 can reuse it later. Not under test here.
+│   └── hetionet-schema.ttl        # TBox, loaded by every Ontop (ONTOP_ONTOLOGY_FILE) so the schema
+│                                  # is part of the served test bed. Ontop consumes domain/range too;
+│                                  # a no-op for parity given the slice's referential integrity.
 │
 ├── mappings/
 │   ├── postgres.obda              # rung 2: bare tables  (gene, disease, gene_disease_association)

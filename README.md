@@ -106,8 +106,15 @@ flowchart TB
 
 ## Ontology 
 
-The slice is three classes and minimal properties. 
-Reasoning is **off**, so `rdfs:domain`/`rdfs:range` here are documentation of intent, not inference rules.
+The slice is three classes and minimal properties. This TBox is loaded into every Ontop instance
+(`ONTOP_ONTOLOGY_FILE`), so the schema is part of the served test bed — not just documentation.
+
+There is **no reasoning we rely on**: no class/subproperty hierarchy, so nothing new is entailed.
+Ontop does fold `rdfs:domain`/`rdfs:range` into the class extensions (e.g. every `gene_id` used by
+`associates`/`binds` is entailed a `hetio:Gene`), but that stays a **no-op for parity** because the
+slice has referential integrity — every edge endpoint also exists as a node, so inference adds no
+IRI the mappings didn't already type. If that invariant ever broke, the domain/range branches would
+diverge from the materialized ground truth first.
 
 
 ```mermaid

@@ -41,6 +41,9 @@ services:
     environment:
       ONTOP_MAPPING_FILE: /opt/ontop/input/postgres.obda
       ONTOP_PROPERTIES_FILE: /opt/ontop/input/postgres.properties
+      # TBox for the slice. Ontop consumes domain/range too; a no-op for parity here (referential
+      # integrity in the slice), so answers stay identical to mapping-only. See ontology/*.ttl.
+      ONTOP_ONTOLOGY_FILE: /opt/ontop/input/hetionet-schema.ttl
       # DB credentials injected here (from secrets/.env) so no password sits in a mounted file.
       ONTOP_DB_USER: ${POSTGRES_USER}
       ONTOP_DB_PASSWORD: ${POSTGRES_PASSWORD}
@@ -57,6 +60,7 @@ services:
     volumes:
       - ./mappings/postgres.obda:/opt/ontop/input/postgres.obda:ro
       - ./ontop/postgres.properties:/opt/ontop/input/postgres.properties:ro
+      - ./ontology/hetionet-schema.ttl:/opt/ontop/input/hetionet-schema.ttl:ro
       - ./ontop/jdbc:/opt/ontop/jdbc:ro
 
   # --- rung 3+ lakehouse leg: MinIO (S3) -> Nessie (Iceberg catalog) -> Trino -> Ontop ------------
@@ -147,6 +151,7 @@ services:
     environment:
       ONTOP_MAPPING_FILE: /opt/ontop/input/iceberg.obda
       ONTOP_PROPERTIES_FILE: /opt/ontop/input/trino.properties
+      ONTOP_ONTOLOGY_FILE: /opt/ontop/input/hetionet-schema.ttl
       ONTOP_CORS_ALLOWED_ORIGINS: "*"
       ONTOP_LOG_LEVEL: ${ONTOP_LOG_LEVEL:-INFO}
       ONTOP_LAZY_INIT: "true"
@@ -156,6 +161,7 @@ services:
     volumes:
       - ./mappings/iceberg.obda:/opt/ontop/input/iceberg.obda:ro
       - ./ontop/trino.properties:/opt/ontop/input/trino.properties:ro
+      - ./ontology/hetionet-schema.ttl:/opt/ontop/input/hetionet-schema.ttl:ro
       # Same jdbc dir as rung 0/2: now holds BOTH the postgres and trino JDBC jars; Ontop loads all.
       - ./ontop/jdbc:/opt/ontop/jdbc:ro
 
@@ -173,6 +179,7 @@ services:
     environment:
       ONTOP_MAPPING_FILE: /opt/ontop/input/polyglot.obda
       ONTOP_PROPERTIES_FILE: /opt/ontop/input/trino.properties
+      ONTOP_ONTOLOGY_FILE: /opt/ontop/input/hetionet-schema.ttl
       ONTOP_CORS_ALLOWED_ORIGINS: "*"
       ONTOP_LOG_LEVEL: ${ONTOP_LOG_LEVEL:-INFO}
       ONTOP_LAZY_INIT: "true"
@@ -182,6 +189,7 @@ services:
     volumes:
       - ./mappings/polyglot.obda:/opt/ontop/input/polyglot.obda:ro
       - ./ontop/trino.properties:/opt/ontop/input/trino.properties:ro
+      - ./ontology/hetionet-schema.ttl:/opt/ontop/input/hetionet-schema.ttl:ro
       - ./ontop/jdbc:/opt/ontop/jdbc:ro
 
 volumes:

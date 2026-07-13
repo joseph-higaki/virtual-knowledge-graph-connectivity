@@ -1,0 +1,31 @@
+@prefix hetio: <https://het.io/schema/> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+
+# TBox for the Hetionet slice {Gene, Disease, Compound} + {associates, binds, treats}.
+# Loaded by Ontop (ONTOP_ONTOLOGY_FILE) so the schema is part of the served test bed.
+#
+# Ontop DOES consume rdfs:domain/rdfs:range (no "load-but-ignore" switch): they fold into the
+# class extensions, e.g. every gene_id used by :associates/:binds is entailed a hetio:Gene. This
+# stays a no-op for parity ONLY because the slice has referential integrity — every edge endpoint
+# also exists as a node — so inference adds no IRI the mappings didn't already type. If that ever
+# breaks, the domain/range branches would diverge from the materialized ground truth first.
+
+<https://het.io/schema/> a owl:Ontology ;
+    rdfs:label "Hetionet connectivity-harness slice (TBox)" .
+
+hetio:Gene     a owl:Class ; rdfs:label "Gene" .
+hetio:Disease  a owl:Class ; rdfs:label "Disease" .
+hetio:Compound a owl:Class ; rdfs:label "Compound" .
+
+hetio:associates a owl:ObjectProperty ;   # Disease–associates–Gene   (DaG)
+    rdfs:label "associates" ;
+    rdfs:domain hetio:Disease  ; rdfs:range hetio:Gene .
+
+hetio:binds a owl:ObjectProperty ;         # Compound–binds–Gene       (CbG)
+    rdfs:label "binds" ;
+    rdfs:domain hetio:Compound ; rdfs:range hetio:Gene .
+
+hetio:treats a owl:ObjectProperty ;        # Compound–treats–Disease   (CtD)
+    rdfs:label "treats" ;
+    rdfs:domain hetio:Compound ; rdfs:range hetio:Disease .
